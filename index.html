@@ -23,6 +23,12 @@
     .small { font-size:13px; color:#475569; }
     .search { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6eef6; margin-bottom:10px; }
     pre { white-space:pre-wrap; word-wrap:break-word; font-family:inherit; }
+    /* Styles for new quiz */
+    .quiz-option { display: block; width: 100%; text-align: left; padding: 10px; margin-bottom: 8px; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; }
+    .quiz-option:hover { background-color: #f3f4f6; }
+    .quiz-option.correct { background-color: #d1fae5; border-color: #10b981; }
+    .quiz-option.incorrect { background-color: #fee2e2; border-color: #ef4444; }
+    .quiz-option:disabled { cursor: not-allowed; opacity: 0.8; }
     @media(max-width:900px){ .body { flex-direction:column; } .left{ width:100%; border-right:none; padding-right:0 } }
   </style>
 </head>
@@ -38,10 +44,11 @@
       <div class="left">
         <div class="card">
           <input id="searchInput" class="search" placeholder="Tìm nhanh câu hỏi (từ khoá)" />
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;flex-wrap: wrap;gap:8px;">
             <button id="btnQA" class="menu-btn active">📖 Hỏi - Đáp VHDN</button>
             <button id="btnVideo" class="menu-btn">🎬 Video VHDN</button>
             <button id="btnQuiz" class="menu-btn">📝 Bài kiểm tra VHDN</button>
+            <button id="btnNewQuiz" class="menu-btn">🚀 Thi trắc nghiệm VHDN</button>
           </div>
         </div>
 
@@ -135,11 +142,12 @@ const content = document.getElementById('contentArea');
 const btnQA = document.getElementById('btnQA');
 const btnVideo = document.getElementById('btnVideo');
 const btnQuiz = document.getElementById('btnQuiz');
+const btnNewQuiz = document.getElementById('btnNewQuiz');
 const searchInput = document.getElementById('searchInput');
 
 function setActiveMenu(activeBtn){
   document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));
-  activeBtn.classList.add('active');
+  if (activeBtn) activeBtn.classList.add('active');
 }
 
 /* render Hỏi-Đáp: list by group or search */
@@ -316,6 +324,7 @@ searchInput.addEventListener('input', e=>{
 btnQA.addEventListener('click', ()=> renderQAMenu());
 btnVideo.addEventListener('click', ()=> renderVideo());
 btnQuiz.addEventListener('click', ()=> startQuiz());
+btnNewQuiz.addEventListener('click', ()=> renderNewQuizMenu());
 
 /* group buttons (left) */
 document.querySelectorAll('[data-group]').forEach(b=>{
@@ -325,7 +334,211 @@ document.querySelectorAll('[data-group]').forEach(b=>{
 /* init */
 renderQAMenu();
 
+/* ================================================================= */
+/* ============= NEW QUIZ FUNCTIONALITY (THI TRẮC NGHIỆM) ========== */
+/* ================================================================= */
+
+const quizData = [
+    { question: "Theo Tài liệu Văn hóa EVN, khẩu hiệu chính thức của Tập đoàn Điện lực Việt Nam là gì?", options: ["EVN - Năng lượng cho phát triển bền vững", "EVN Thắp sáng niềm tin", "Điện đi trước một bước", "EVN - Nguồn sáng cho tương lai"], answer: 1, explanation: "Chính xác! Đây là khẩu hiệu chính thức, nhấn mạnh cam kết của EVN trong việc xây dựng và củng cố niềm tin với Đảng, Chính phủ, khách hàng và cộng đồng." },
+    { question: "Trong 5 giá trị cốt lõi của EVN, giá trị nào nhấn mạnh việc \"mở đường, khơi nguồn sáng tạo\" và tạo ra những đột phá về năng lượng cho đất nước?", options: ["Trách nhiệm", "Sáng tạo", "Tiên phong", "Chất lượng"], answer: 2, explanation: "Giá trị này thể hiện tinh thần mở đường, dẫn dắt, chủ động phản ứng với thay đổi và làm chủ tương lai, phù hợp với truyền thống \"Điện đi trước một bước\"." },
+    { question: "Theo Bộ Quy tắc ứng xử văn hóa EVN, khi một cấp dưới nhận thấy chỉ đạo của cấp trên không phù hợp hoặc trái pháp luật, hành động đúng đắn đầu tiên là gì?", options: ["Báo cáo ngay với cấp trên để xem xét, nếu cấp trên không thay đổi thì phải chấp hành và có quyền bảo lưu ý kiến, đồng thời báo cáo lên lãnh đạo cao hơn.", "Từ chối thực hiện ngay lập tức và báo cáo cho công đoàn.", "Tự ý thay đổi chỉ đạo theo cách mình cho là đúng.", "Im lặng chấp hành để tránh mâu thuẫn với cấp trên."], answer: 0, explanation: "Quy tắc này đảm bảo việc tuân thủ kỷ luật nhưng vẫn cho phép cấp dưới thể hiện trách nhiệm và bảo vệ lợi ích chung một cách có quy trình." },
+    { question: "Một trong những chuẩn mực đạo đức nghề nghiệp của EVN là \"Nhân văn\". Ý nghĩa của chuẩn mực này là gì?", options: ["Mọi hoạt động đều phải minh bạch, công khai về tài chính và quy trình.", "Đặt con người ở vị trí trung tâm, hành động vì niềm vui, hạnh phúc của mọi người và coi người lao động là tài sản quý giá nhất.", "Đảm bảo an toàn tuyệt đối cho người lao động, khách hàng và cộng đồng là ưu tiên hàng đầu.", "Tập trung vào việc giữ gìn sự đoàn kết, thống nhất trong nội bộ để tạo ra sức mạnh tập thể."], answer: 1, explanation: "Chuẩn mực này khẳng định con người luôn là yếu tố trung tâm trong mọi hoạt động của EVN, từ khách hàng đến người lao động." },
+    { question: "Theo quy tắc về nghi thức ứng xử của EVN, vị trí ngồi quan trọng nhất trên xe ô tô (không tính lái xe) là ở đâu?", options: ["Hàng ghế thứ hai, phía tay phải của lái xe.", "Hàng ghế thứ hai, phía tay trái của lái xe.", "Ghế phụ hàng trên, bên cạnh lái xe.", "Hàng ghế thứ hai, ở giữa."], answer: 0, explanation: "Đây được quy định là vị trí quan trọng thứ nhất, thường dành cho người có chức vụ cao nhất trong xe." },
+    { question: "Nguyên tắc cơ bản thứ năm trong thực thi văn hóa EVN là gì?", options: ["Sức mạnh là tinh thần đoàn kết và trí tuệ tập thể.", "Lãnh đạo phải làm gương.", "Có cá nhân xuất sắc mới có tập thể sáng tạo.", "Đã là EVN thì chất lượng và đáng tin cậy."], answer: 1, explanation: "Nguyên tắc này yêu cầu mỗi cán bộ lãnh đạo, quản lý phải là tấm gương phản chiếu các giá trị văn hóa EVN." },
+    { question: "Theo Bộ Quy tắc ứng xử văn hóa EVN (2023), ai là người được phép cung cấp thông tin và phát ngôn cho báo chí về các vấn đề liên quan đến EVN?", options: ["Chỉ lãnh đạo cấp cao nhất của Tập đoàn.", "Bất kỳ cán bộ, công nhân viên nào am hiểu về vấn đề đó.", "Trưởng các Ban/phòng chuyên môn liên quan đến thông tin.", "Chỉ người có thẩm quyền theo quy định về phát ngôn hoặc người được ủy quyền."], answer: 3, explanation: "Điều 27 quy định rõ ràng rằng việc phát ngôn phải tuân thủ quy định và chỉ những người được giao nhiệm vụ mới được thực hiện để đảm bảo tính chính xác và nhất quán." },
+    { question: "Cam kết của EVN \"Vì niềm tin của người lao động\" KHÔNG bao gồm nội dung nào sau đây?", options: ["Đảm bảo ổn định việc làm và ngày càng nâng cao đời sống vật chất, tinh thần.", "Đầu tư đào tạo, phát triển toàn diện người lao động.", "Mang đến cho người lao động sự tôn trọng, công bằng và môi trường làm việc an toàn.", "Quan tâm chăm lo đến lợi ích của cộng đồng, tích cực hỗ trợ cộng đồng."], answer: 3, explanation: "Đây là nội dung thuộc cam kết \"Vì niềm tin của cộng đồng\", không phải cam kết dành riêng cho người lao động." },
+    { question: "Trong các giá trị chuẩn mực hành vi ứng xử chung của EVN, giá trị nào thể hiện tinh thần làm việc tâm huyết, hết lòng vì công việc và sự hài lòng của khách hàng?", options: ["Hợp tác", "Tận tâm", "Nghĩa tình", "Chuyên nghiệp"], answer: 1, explanation: "Giá trị này nhấn mạnh việc cống hiến hết sức lực và trí tuệ, làm việc với khát vọng mang lại giá trị cho khách hàng và tổ chức." },
+    { question: "Theo quy định về trang phục của EVN, \"Lễ phục\" mùa hè của nữ giới là gì?", options: ["Đồng phục áo sơ mi và chân váy của EVN.", "Comple nữ.", "Váy công sở lịch sự.", "Áo dài truyền thống."], answer: 3, explanation: "Điều 38 của Bộ Quy tắc ứng xử quy định rõ áo dài truyền thống là lễ phục mùa hè của nữ, thể hiện sự trang trọng và nét đẹp văn hóa dân tộc." },
+    { question: "Triết lý hoạt động của EVN đặt yếu tố nào làm trung tâm của sự tồn tại và phát triển?", options: ["An ninh năng lượng quốc gia.", "Lợi nhuận và hiệu quả kinh doanh.", "Khách hàng.", "Công nghệ và đổi mới sáng tạo."], answer: 2, explanation: "Triết lý của EVN khẳng định: \"Khách hàng là trung tâm của sự tồn tại và phát triển, con người là tài sản quý giá nhất...\"" },
+    { question: "Theo Bộ Quy tắc ứng xử văn hóa EVN, khi giao tiếp trong thang máy tại nơi làm việc, hành vi nào sau đây được khuyến khích?", options: ["Giữ im lặng tuyệt đối để thể hiện sự nghiêm túc.", "Sử dụng điện thoại để giải quyết các cuộc gọi quan trọng.", "Chủ động chào hỏi với những người đi cùng.", "Trao đổi nhanh về công việc để tiết kiệm thời gian."], answer: 2, explanation: "Đây là hành vi thể hiện sự văn minh, lịch sự và thân thiện, góp phần xây dựng môi trường làm việc tích cực." },
+    { question: "Theo Tài liệu Văn hóa EVN 2022, đâu là một trong năm giá trị cốt lõi của EVN?", options: ["Sáng tạo", "Nhân văn", "An toàn", "Đoàn kết"], answer: 0, explanation: "Giá trị này được coi là đòn bẩy cho sự phát triển, giúp EVN vươn lên vị trí dẫn đầu trong lĩnh vực năng lượng." },
+    { question: "Triết lý hoạt động của EVN đặt yếu tố nào vào vị trí trung tâm của sự tồn tại và phát triển?", options: ["Người lao động", "Chất lượng điện năng", "Sự phát triển bền vững", "Khách hàng"], answer: 3, explanation: "Triết lý hoạt động của EVN nêu rõ rằng sự tồn tại và phát triển của Tập đoàn xoay quanh việc phục vụ và đáp ứng nhu cầu của đối tượng này." },
+    { question: "Theo Bộ Quy tắc ứng xử văn hóa EVN ban hành năm 2023, nhân viên khối gián tiếp phải mặc đồng phục vào ngày nào trong tuần?", options: ["Các ngày có hội họp quan trọng", "Thứ Sáu", "Tất cả các ngày làm việc", "Thứ Hai"], answer: 3, explanation: "Quy định này được áp dụng vào ngày đầu tuần làm việc để thể hiện sự thống nhất và hình ảnh chuyên nghiệp." },
+    { question: "Nguyên tắc cơ bản thứ năm được nêu trong Tài liệu Văn hóa EVN là gì?", options: ["Có cá nhân xuất sắc mới có tập thể sáng tạo", "Lãnh đạo phải làm gương", "Đã là EVN thì chất lượng và đáng tin cậy", "Sức mạnh là tinh thần đoàn kết và trí tuệ tập thể"], answer: 1, explanation: "Nguyên tắc này nhấn mạnh vai trò tiên phong và trách nhiệm nêu gương của đội ngũ quản lý trong việc thực thi văn hóa doanh nghiệp." },
+    { question: "Trong cam kết của EVN \"Vì sự bền vững của môi trường\", EVN coi trọng việc sử dụng công nghệ như thế nào?", options: ["Công nghệ tiên tiến, \"xanh - sạch\", thân thiện môi trường", "Công nghệ tự động hóa hoàn toàn để giảm nhân công", "Công nghệ chi phí thấp để tối ưu hóa lợi nhuận", "Công nghệ truyền thống đã được kiểm chứng qua thời gian"], answer: 0, explanation: "Cam kết này thể hiện rõ mục tiêu sử dụng các giải pháp công nghệ hiện đại nhằm giảm thiểu tác động tiêu cực đến môi trường." },
+    { question: "Theo Quy tắc ứng xử của EVN, khi cấp dưới nhận thấy chỉ đạo của cấp trên không phù hợp hoặc trái pháp luật, hành động đúng đắn là gì?", options: ["Thảo luận với đồng nghiệp để cùng nhau phản đối", "Báo cáo cấp trên, nếu không thay đổi thì chấp hành và báo cáo lên cấp cao hơn", "Im lặng chấp hành để tránh mâu thuẫn", "Từ chối thực hiện và báo cáo với cơ quan pháp luật"], answer: 1, explanation: "Quy trình này vừa đảm bảo kỷ luật, vừa thể hiện trách nhiệm bảo vệ lợi ích chung và có cơ chế để xem xét lại quyết định." },
+    { question: "Tài liệu Văn hóa EVN 2022 định nghĩa khẩu hiệu của Tập đoàn là gì?", options: ["EVN Thắp sáng niềm tin", "Điện đi trước một bước", "Vì một cộng đồng phát triển bền vững", "Khách hàng là trung tâm"], answer: 0, explanation: "Khẩu hiệu này truyền đi thông điệp về cam kết và nỗ lực của EVN để xứng đáng với sự tin tưởng của các bên liên quan." },
+    { question: "Năm chuẩn mực đạo đức nghề nghiệp của EVN bao gồm \"An toàn\", \"Đoàn kết\", \"Nhân văn\", \"Trung thực\" và chuẩn mực nào sau đây?", options: ["Tiên phong", "Chất lượng", "Minh bạch", "Trách nhiệm"], answer: 2, explanation: "Chuẩn mực này giúp củng cố lòng tin của các bên liên quan và xây dựng môi trường làm việc tin cậy." },
+    { question: "Theo quy cách ngồi trên xe ô tô trong Bộ Quy tắc ứng xử, vị trí quan trọng nhất (ưu tiên cho người có chức vụ cao nhất) là vị trí nào?", options: ["Hàng ghế thứ hai, vị trí ngồi giữa", "Ghế phụ hàng trên, bên cạnh lái xe", "Hàng ghế thứ hai, phía tay trái của lái xe", "Hàng ghế thứ hai, phía tay phải của lái xe"], answer: 3, explanation: "Theo thông lệ lễ tân, vị trí phía sau bên phải được coi là vị trí danh dự và an toàn nhất." },
+    { question: "Trong các giá trị chuẩn mực hành vi ứng xử chung, giá trị nào được mô tả là \"nền tảng cơ bản của các mối quan hệ với các bên liên quan\"?", options: ["Chuyên nghiệp", "Hợp tác", "Tôn trọng", "Tận tâm"], answer: 2, explanation: "Câu hỏi này không có trong danh sách gốc, nhưng dựa trên logic văn hóa doanh nghiệp, 'Tôn trọng' là nền tảng." },
+    { question: "Cam kết của EVN đối với người lao động khẳng định điều gì là \"tài sản quý giá nhất\"?", options: ["Các giá trị văn hóa", "Uy tín và thương hiệu", "Người lao động", "Cơ sở vật chất hiện đại"], answer: 2, explanation: "Cam kết này khẳng định vai trò trung tâm và tầm quan trọng của nguồn nhân lực đối với sự thành công của Tập đoàn." },
+    { question: "Theo quy tắc ứng xử trên mạng xã hội, CBCNV EVN cần tuân thủ quy tắc nào do Bộ Thông tin và Truyền thông ban hành?", options: ["Quy tắc tôn trọng, tuân thủ pháp luật", "Không sử dụng mạng xã hội trong giờ làm việc", "Luôn sử dụng tên thật và chức danh", "Chỉ chia sẻ thông tin tích cực về EVN"], answer: 0, explanation: "Đây là một trong bốn quy tắc ứng xử chung trên mạng xã hội, yêu cầu mọi hành vi phải phù hợp với pháp luật Việt Nam." },
+    { question: "Theo Tài liệu Văn hóa EVN, triết lý hoạt động của EVN coi yếu tố nào là \"tài sản quý giá nhất\"?", options: ["Khách hàng", "Con người", "Công nghệ", "Thương hiệu"], answer: 1, explanation: "Triết lý hoạt động của EVN nêu rõ: \"con người là tài sản quý giá nhất, niềm tin được thắp sáng bằng các giá trị được tạo dựng và chia sẻ\"." },
+    { question: "Đâu là 5 giá trị cốt lõi của EVN được nêu trong Tài liệu Văn hóa ban hành năm 2022?", options: ["An toàn, Đoàn kết, Nhân văn, Trung thực, Minh bạch", "Tôn trọng, Tận tâm, Chuyên nghiệp, Hợp tác, Nghĩa tình", "Niềm tin, Chất lượng, Đoàn kết, Sáng tạo, An toàn", "Niềm tin, Chất lượng, Tiên phong, Sáng tạo, Trách nhiệm"], answer: 3, explanation: "Đây chính xác là 5 giá trị cốt lõi được liệt kê và diễn giải chi tiết trong Mục II, Chương I của Tài liệu Văn hóa EVN." },
+    { question: "Nguyên tắc cơ bản thứ năm của EVN là gì?", options: ["Đã là EVN thì chất lượng và đáng tin cậy", "Sức mạnh của EVN là tinh thần đoàn kết và trí tuệ tập thể", "Có cá nhân xuất sắc mới có tập thể sáng tạo", "Lãnh đạo phải làm gương"], answer: 3, explanation: "Nguyên tắc thứ năm nhấn mạnh vai trò nêu gương của cán bộ lãnh đạo, quản lý về phẩm chất đạo đức, ứng xử, và phong cách làm việc." },
+    { question: "Trong Bộ Quy tắc ứng xử văn hóa EVN, khi cấp dưới nhận thấy chỉ đạo của cấp trên không phù hợp hoặc trái pháp luật, hành động đầu tiên cần làm là gì?", options: ["Báo cáo ngay với cấp trên để xem xét", "Từ chối thực hiện ngay lập tức", "Báo cáo ngay lên lãnh đạo cấp cao hơn", "Chấp hành nghiêm túc và không thắc mắc"], answer: 0, explanation: "Điều 17 quy định rõ: \"phải báo cáo ngay với cấp trên để xem xét; nếu cấp trên không thay đổi thì phải chấp hành và có quyền bảo lưu ý kiến của mình, đồng thời báo cáo ngay lên lãnh đạo cao hơn\"." },
+    { question: "Theo cam kết của EVN, khẩu hiệu \"EVN Thắp sáng niềm tin\" truyền đi thông điệp gì?", options: ["Cam kết chỉ tập trung vào việc cung cấp điện năng ổn định", "Cam kết trở thành doanh nghiệp có lợi nhuận cao nhất trong ngành", "Cam kết thực thi các giá trị văn hóa và xứng đáng với niềm tin của các bên liên quan", "Cam kết chỉ sử dụng công nghệ tiên tiến nhất thế giới"], answer: 2, explanation: "Phần mở đầu của mục \"Các cam kết của EVN\" nêu rõ khẩu hiệu này truyền đi thông điệp cam kết thực thi văn hóa và nỗ lực xứng đáng với niềm tin của Đảng, Chính phủ, khách hàng, đối tác, người lao động và cộng đồng." },
+    { question: "Bộ Quy tắc ứng xử quy định trang phục của cán bộ, công nhân viên làm việc ở bộ phận gián tiếp vào ngày thứ Hai hàng tuần là gì?", options: ["Trang phục tự do, lịch sự", "Đồng phục", "Lễ phục", "Comple"], answer: 1, explanation: "Điều 38 của Bộ Quy tắc ứng xử nêu rõ: \"CBCNV làm việc ở bộ phận gián tiếp mặc đồng phục vào ngày thứ Hai hàng tuần\"." },
+    { question: "Trong các chuẩn mực đạo đức nghề nghiệp, \"An toàn\" có ý nghĩa gì?", options: ["Chỉ là trách nhiệm của bộ phận kỹ thuật vận hành", "Là một giá trị cốt lõi, quan trọng hơn các giá trị khác", "Là tôn chỉ hành động và chuẩn mực đạo đức phải thực hiện nghiêm ngặt", "Chỉ áp dụng cho người lao động, không liên quan đến khách hàng"], answer: 2, explanation: "Định nghĩa về \"An toàn\" trong Tài liệu Văn hóa nhấn mạnh đây là tôn chỉ hành động và chuẩn mực đạo đức mà EVN phải thực hiện nghiêm ngặt." },
+    { question: "Theo Bộ Quy tắc ứng xử, quy cách ngồi trên xe ô tô xác định vị trí quan trọng nhất là ở đâu?", options: ["Hàng ghế thứ hai, phía tay trái của lái xe", "Hàng ghế thứ hai, ở giữa", "Hàng ghế thứ hai, phía tay phải của lái xe", "Hàng ghế trên, bên cạnh lái xe"], answer: 2, explanation: "Điều 35 quy định rõ: \"Vị trí quan trọng thứ nhất ở hàng ghế thứ hai phía tay phải của lái xe\"." },
+    { question: "Cam kết của EVN \"Vì niềm tin của người lao động\" nhấn mạnh điều gì?", options: ["Chỉ tuyển dụng người thân của cán bộ, công nhân viên", "Cung cấp giá điện ưu đãi cho gia đình người lao động", "Luôn coi người lao động là tài sản quý giá nhất và đảm bảo ổn định việc làm", "Đảm bảo cạnh tranh công bằng với các doanh nghiệp khác"], answer: 2, explanation: "Cam kết này khẳng định \"Người lao động luôn là tài sản quý giá nhất\", đảm bảo việc làm và nâng cao đời sống cho họ." },
+    { question: "Giá trị chuẩn mực hành vi ứng xử \"Nghĩa tình\" trong văn hóa EVN có ý nghĩa gì?", options: ["Chỉ hợp tác với các đối tác lâu năm, có quan hệ thân thiết", "Tập trung vào việc tuân thủ nghiêm ngặt các quy trình làm việc", "Sống có lòng biết ơn, tri ân thế hệ đi trước và chăm lo, vun đắp quan hệ đồng nghiệp", "Luôn đặt lợi ích kinh tế của tập đoàn lên hàng đầu trong mọi tình huống"], answer: 2, explanation: "Tài liệu định nghĩa \"Nghĩa tình\" là lòng biết ơn, tri ân thế hệ đi trước, quan tâm đến người lao động và vun đắp mối quan hệ nội bộ." },
+    { question: "Theo Tài liệu Văn hóa EVN, triết lý hoạt động của EVN đặt yếu tố nào vào vị trí trung tâm của sự tồn tại và phát triển?", options: ["Người lao động", "Công nghệ", "Khách hàng", "Lợi nhuận"], answer: 2, explanation: "Triết lý hoạt động của EVN nêu rõ: “Khách hàng là trung tâm của sự tồn tại và phát triển, con người là tài sản quý giá nhất...”." },
+    { question: "Đâu KHÔNG phải là một trong năm giá trị cốt lõi được nêu trong Tài liệu Văn hóa EVN?", options: ["Sáng tạo", "Niềm tin", "Nhân văn", "Tiên phong"], answer: 2, explanation: "Nhân văn là một trong các chuẩn mực đạo đức nghề nghiệp, không phải là một giá trị cốt lõi của EVN." },
+    { question: "Nguyên tắc cơ bản thứ năm trong việc thực thi văn hóa EVN là gì?", options: ["Đã là EVN thì chất lượng và đáng tin cậy", "Sức mạnh là tinh thần đoàn kết và trí tuệ tập thể", "Lãnh đạo phải làm gương", "Có cá nhân xuất sắc mới có tập thể sáng tạo"], answer: 2, explanation: "Đây chính là nguyên tắc thứ năm, nhấn mạnh mỗi cán bộ lãnh đạo, quản lý phải là tấm gương phản chiếu các giá trị văn hóa EVN." },
+    { question: "Cam kết của EVN đối với người lao động khẳng định điều gì?", options: ["Người lao động là nguồn lực chính để tạo ra lợi nhuận", "Người lao động là đối tượng cần quản lý hiệu quả", "Người lao động cần tuân thủ tuyệt đối quy định", "Người lao động là tài sản quý giá nhất"], answer: 3, explanation: "Đây là thông điệp cốt lõi trong cam kết của EVN với người lao động, thể hiện sự trân trọng và coi trọng con người." },
+    { question: "Truyền thống \"Điện đi trước một bước\" thể hiện rõ nhất cho giá trị cốt lõi nào của EVN?", options: ["Chất lượng", "Niềm tin", "Tiên phong", "Trách nhiệm"], answer: 2, explanation: "Truyền thống “Điện đi trước một bước” là minh chứng rõ ràng cho tinh thần mở đường, dẫn dắt và chủ động của giá trị Tiên phong." },
+    { question: "Theo Bộ Quy tắc ứng xử, khi giao tiếp trong nội bộ, nguyên tắc chào hỏi được quy định như thế nào?", options: ["Người ít tuổi chào người lớn tuổi trước, cấp dưới chào cấp trên trước.", "Việc chào hỏi là không bắt buộc, tùy thuộc vào mối quan hệ cá nhân.", "Chỉ cần chào cấp trên trực tiếp, không cần chào các lãnh đạo khác.", "Ai nhìn thấy trước thì chào trước, không phân biệt tuổi tác hay chức vụ."], answer: 0, explanation: "Đây là quy tắc chính xác được nêu trong Điều 11, thể hiện sự tôn trọng thứ bậc và tuổi tác trong văn hóa giao tiếp." },
+    { question: "Trong trường hợp cấp dưới nhận thấy chỉ đạo của cấp trên không phù hợp hoặc trái pháp luật, Bộ Quy tắc ứng xử hướng dẫn cách xử lý nào?", options: ["Báo cáo cấp trên, nếu cấp trên không đổi thì chấp hành, bảo lưu ý kiến và báo cáo lên cấp cao hơn.", "Tự ý điều chỉnh chỉ đạo cho phù hợp với thực tế.", "Từ chối thực hiện ngay lập tức và yêu cầu một chỉ đạo khác.", "Im lặng chấp hành để tránh mâu thuẫn."], answer: 0, explanation: "Đây là quy trình đúng đắn, vừa đảm bảo kỷ luật, vừa thể hiện trách nhiệm của cá nhân đối với lợi ích chung và sự tuân thủ pháp luật." },
+    { question: "Theo quy định trong Bộ Quy tắc ứng xử, lễ phục mùa hè của nữ cán bộ, công nhân viên EVN là gì?", options: ["Áo dài truyền thống", "Đồng phục mùa hè của EVN", "Comple nữ", "Áo sơ mi có cổ và chân váy công sở"], answer: 0, explanation: "Điều 38 quy định rõ áo dài truyền thống là lễ phục mùa hè cho nữ, thể hiện nét đẹp văn hóa dân tộc." },
+    { question: "Khi đi công tác nước ngoài, cán bộ công nhân viên EVN phải tuyệt đối tuân thủ điều gì liên quan đến phát ngôn?", options: ["Không đưa ra các lời hứa, cam kết vượt quá thẩm quyền quy định.", "Từ chối trả lời mọi câu hỏi từ đối tác để bảo mật thông tin.", "Tránh thảo luận về văn hóa, phong tục của nước bạn.", "Chỉ giao tiếp bằng tiếng Anh để thể hiện sự chuyên nghiệp."], answer: 0, explanation: "Đây là quy định quan trọng nhằm đảm bảo tính chính xác, trách nhiệm và tránh các rủi ro pháp lý cho EVN." },
+    { question: "Theo Tài liệu Văn hóa EVN, triết lý hoạt động của EVN xác định yếu tố nào là trung tâm của sự tồn tại và phát triển?", options: ["Công nghệ số", "Khách hàng", "An ninh năng lượng", "Người lao động"], answer: 1, explanation: "Triết lý của EVN nêu rõ 'Khách hàng là trung tâm của sự tồn tại và phát triển'." },
+    { question: "Năm giá trị cốt lõi của Văn hóa EVN là gì?", options: ["An toàn, Đoàn kết, Nhân văn, Trung thực, Minh bạch", "Tôn trọng, Tận tâm, Chuyên nghiệp, Hợp tác, Nghĩa tình", "Niềm tin, Chất lượng, Tiên phong, Sáng tạo, Trách nhiệm", "Hiệu quả, Kỷ luật, Uy tín, Hợp tác, Bền vững"], answer: 2, explanation: "Tài liệu Văn hóa EVN xác định rõ năm giá trị này là nền tảng gắn kết người EVN." },
+    { question: "Theo Bộ Quy tắc ứng xử, khi một cấp dưới nhận thấy chỉ đạo của cấp trên có thể trái pháp luật, họ nên làm gì trước tiên?", options: ["Từ chối thực hiện ngay lập tức và không cần giải thích.", "Phổ biến thông tin cho các đồng nghiệp khác để cùng phản đối.", "Báo cáo ngay với cấp trên để xem xét lại chỉ đạo.", "Vẫn chấp hành nhưng báo cáo ngay lên lãnh đạo cao hơn."], answer: 2, explanation: "Quy tắc ứng xử hướng dẫn nhân viên phải báo cáo ngay với cấp trên khi nhận thấy quyết định không phù hợp hoặc trái pháp luật." },
+    { question: "Nguyên tắc cơ bản thứ năm trong việc thực thi văn hóa EVN nhấn mạnh điều gì ở cán bộ lãnh đạo, quản lý?", options: ["Lãnh đạo phải làm gương.", "Phải phát huy tối đa sức mạnh của trí tuệ tập thể.", "Phải coi trọng tài năng của mỗi cá nhân.", "Phải có tư duy đích đến trong mọi công việc."], answer: 0, explanation: "Nguyên tắc thứ năm yêu cầu mỗi cán bộ lãnh đạo, quản lý phải là tấm gương phản chiếu các giá trị văn hóa EVN." },
+    { question: "Khẩu hiệu (slogan) chính thức của Tập đoàn Điện lực Việt Nam là gì?", options: ["Vì một cộng đồng phát triển bền vững.", "EVN Thắp sáng niềm tin.", "Điện đi trước một bước.", "Nguồn năng lượng cho đất nước."], answer: 1, explanation: "Đây là khẩu hiệu chính thức, thể hiện cam kết và sứ mệnh của EVN với khách hàng và cộng đồng." },
+    { question: "Theo Bộ Quy tắc ứng xử, khi đi công tác bằng xe ô tô, vị trí ngồi nào được coi là quan trọng nhất?", options: ["Hàng ghế thứ hai, phía tay phải của lái xe.", "Vị trí giữa ở hàng ghế thứ hai.", "Ghế phụ hàng trên, bên cạnh lái xe.", "Hàng ghế thứ hai, phía tay trái của lái xe."], answer: 0, explanation: "Bộ Quy tắc ứng xử quy định đây là vị trí quan trọng thứ nhất, thường dành cho người có chức vụ cao nhất." },
+    { question: "Bộ Quy tắc ứng xử văn hóa EVN được ban hành vào thời gian nào?", options: ["Tháng 7 năm 2009", "Tháng 01 năm 2023", "Tháng 7 năm 2022", "Tháng 01 năm 2022"], answer: 1, explanation: "Quyết định ban hành 'Bộ Quy tắc ứng xử văn hóa Tập đoàn Điện lực Việt Nam' được ký vào tháng 01 năm 2023." }
+];
+
+let quizSets = [];
+let currentSetIndex = -1;
+let currentQuestionIndex = 0;
+let score = 0;
+let userAnswers = [];
+
+// Shuffle and create 5 quiz sets of 10 questions each
+function setupQuizSets() {
+    const shuffledData = [...quizData].sort(() => 0.5 - Math.random());
+    quizSets = [];
+    for (let i = 0; i < 5; i++) {
+        quizSets.push(shuffledData.slice(i * 10, (i + 1) * 10));
+    }
+}
+
+function renderNewQuizMenu() {
+    setActiveMenu(btnNewQuiz);
+    content.innerHTML = `<div class="card">
+        <h2 class="text-lg font-bold">Thi trắc nghiệm Văn hóa Doanh nghiệp</h2>
+        <p class="small mb-4">Vui lòng chọn một trong các bộ đề dưới đây để bắt đầu.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <button class="btn primary" onclick="startNewQuiz(0)">Đề 01_Thi trắc nghiệm Văn hóa EVN</button>
+            <button class="btn primary" onclick="startNewQuiz(1)">Đề 02_Thi trắc nghiệm Văn hóa EVN</button>
+            <button class="btn primary" onclick="startNewQuiz(2)">Đề 03_Thi trắc nghiệm Văn hóa EVN</button>
+            <button class="btn primary" onclick="startNewQuiz(3)">Đề 04_Thi trắc nghiệm Văn hóa EVN</button>
+            <button class="btn primary" onclick="startNewQuiz(4)">Đề 05_Thi trắc nghiệm Văn hóa EVN</button>
+        </div>
+    </div>`;
+}
+
+function startNewQuiz(setIdx) {
+    currentSetIndex = setIdx;
+    currentQuestionIndex = 0;
+    score = 0;
+    userAnswers = [];
+    renderNewQuizQuestion();
+}
+
+function renderNewQuizQuestion() {
+    const quizSet = quizSets[currentSetIndex];
+    if (currentQuestionIndex >= quizSet.length) {
+        showNewQuizResult();
+        return;
+    }
+
+    const questionData = quizSet[currentQuestionIndex];
+    let optionsHtml = '';
+    questionData.options.forEach((option, index) => {
+        optionsHtml += `<button class="quiz-option" onclick="selectAnswer(this, ${index})">${String.fromCharCode(65 + index)}. ${option}</button>`;
+    });
+
+    content.innerHTML = `<div class="card">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-lg font-bold">Đề ${String(currentSetIndex + 1).padStart(2, '0')} - Câu ${currentQuestionIndex + 1}/${quizSet.length}</h2>
+            <div class="font-bold text-xl">Điểm: ${score}</div>
+        </div>
+        <p class="mb-4 font-semibold">${questionData.question}</p>
+        <div id="options-container">
+            ${optionsHtml}
+        </div>
+        <div id="explanation-container" class="mt-4 p-3 rounded-lg bg-blue-50 text-blue-800" style="display: none;"></div>
+    </div>`;
+}
+
+function selectAnswer(button, selectedIndex) {
+    const quizSet = quizSets[currentSetIndex];
+    const questionData = quizSet[currentQuestionIndex];
+    userAnswers[currentQuestionIndex] = selectedIndex;
+
+    const optionsContainer = document.getElementById('options-container');
+    const allOptions = optionsContainer.getElementsByTagName('button');
+
+    // Disable all options
+    for (let opt of allOptions) {
+        opt.disabled = true;
+    }
+
+    const correctIndex = questionData.answer;
+
+    if (selectedIndex === correctIndex) {
+        score++;
+        button.classList.add('correct');
+    } else {
+        button.classList.add('incorrect');
+        allOptions[correctIndex].classList.add('correct');
+    }
+
+    const explanationContainer = document.getElementById('explanation-container');
+    explanationContainer.innerHTML = `<strong>Đáp án đúng: ${String.fromCharCode(65 + correctIndex)}</strong><br>${questionData.explanation}`;
+    explanationContainer.style.display = 'block';
+
+    setTimeout(() => {
+        currentQuestionIndex++;
+        renderNewQuizQuestion();
+    }, 3000); // Wait 3 seconds before next question
+}
+
+function showNewQuizResult() {
+    content.innerHTML = `<div class="card text-center">
+        <h2 class="text-xl font-bold mb-2">Hoàn thành bài thi!</h2>
+        <p class="mb-4 text-lg">Kết quả của bạn: <span class="font-bold text-2xl text-green-600">${score} / ${quizSets[currentSetIndex].length}</span></p>
+        <p class="mb-6">${score >= 8 ? 'Xuất sắc! Bạn đã nắm rất vững văn hóa EVN.' : (score >= 5 ? 'Khá tốt! Cần ôn luyện thêm một chút.' : 'Cần cố gắng hơn! Hãy ôn lại kiến thức nhé.')}</p>
+        <div class="flex justify-center gap-4 flex-wrap">
+            <button class="btn primary" onclick="reviewQuiz()">Xem lại</button>
+            <button class="btn ghost" onclick="startNewQuiz(${currentSetIndex})">Thi lại</button>
+            <button class="btn ghost" onclick="renderNewQuizMenu()">Làm đề khác</button>
+        </div>
+    </div>`;
+}
+
+function reviewQuiz() {
+    const quizSet = quizSets[currentSetIndex];
+    let reviewHtml = `<div class="card">
+        <h2 class="text-lg font-bold mb-4">Xem lại bài làm - Đề ${String(currentSetIndex + 1).padStart(2, '0')}</h2>`;
+
+    quizSet.forEach((q, index) => {
+        reviewHtml += `<div class="mb-6 p-4 border rounded-lg">
+            <p class="font-semibold mb-2">Câu ${index + 1}: ${q.question}</p>`;
+
+        q.options.forEach((opt, optIndex) => {
+            let className = 'quiz-option';
+            const userAnswer = userAnswers[index];
+            const isCorrectAnswer = optIndex === q.answer;
+            const isUserAnswer = optIndex === userAnswer;
+
+            if (isCorrectAnswer) {
+                className += ' correct';
+            } else if (isUserAnswer && !isCorrectAnswer) {
+                className += ' incorrect';
+            }
+            reviewHtml += `<div class="${className}">${String.fromCharCode(65 + optIndex)}. ${opt}</div>`;
+        });
+         reviewHtml += `<div class="mt-2 p-2 rounded-lg bg-gray-100 text-sm">${q.explanation}</div>`
+        reviewHtml += `</div>`;
+    });
+
+    reviewHtml += `<div class="text-center mt-6">
+        <button class="btn primary" onclick="startNewQuiz(${currentSetIndex})">Thi lại</button>
+        <button class="btn ghost" onclick="renderNewQuizMenu()">Làm đề khác</button>
+    </div></div>`;
+    content.innerHTML = reviewHtml;
+}
+
+
+// Initialize quiz sets on load
+setupQuizSets();
+
+
 </script>
 </body>
 </html>
-
