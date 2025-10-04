@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chatbot Văn hóa EVN — Hỏi-Đáp & Quiz</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root { --evn-blue: #005BAC; --evn-red: #E30613; }
+    body { font-family: Inter, sans-serif; background:#f3f6fa; margin:0; padding:20px; display:flex; justify-content:center; }
+    .chatbot { width:100%; max-width:820px; background:#fff; border-radius:12px; box-shadow:0 8px 30px rgba(2,6,23,0.08); overflow:hidden; display:flex; flex-direction:column; min-height:640px; }
+    .header { background:linear-gradient(90deg,var(--evn-blue), #004b8a); color:#fff; padding:18px; text-align:center; }
+    .body { display:flex; gap:1rem; padding:18px; flex:1; }
+    .left { width:320px; border-right:1px solid #eef2f6; padding-right:12px; }
+    .right { flex:1; padding-left:12px; overflow:auto; }
+    .menu-btn { display:block; width:100%; text-align:left; margin-bottom:8px; padding:10px 12px; background:#f7f9fb; border-radius:8px; cursor:pointer; border:1px solid #e6eef6; font-weight:600; color:#0f1724; }
+    .menu-btn.active { background:var(--evn-blue); color:#fff; border-color:rgba(255,255,255,0.06); }
+    .card { background:#fff; border-radius:10px; padding:12px; box-shadow: 0 2px 8px rgba(12,20,40,0.04); margin-bottom:12px; }
+    .qa-item { padding:10px; border-radius:8px; background:#f8fbff; margin-bottom:8px; }
+    .btn { padding:8px 12px; border-radius:8px; cursor:pointer; border:none; font-weight:600; }
+    .btn.primary { background:var(--evn-blue); color:#fff; }
+    .btn.ghost { background:#fff; border:1px solid #d7e6fb; color:#0b2540; }
+    .small { font-size:13px; color:#475569; }
+    .search { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6eef6; margin-bottom:10px; }
+    pre { white-space:pre-wrap; word-wrap:break-word; font-family:inherit; }
+    @media(max-width:900px){ .body { flex-direction:column; } .left{ width:100%; border-right:none; padding-right:0 } }
+  </style>
+</head>
+<body>
+  <div class="chatbot" role="application" aria-label="Chatbot Văn hóa EVN">
+    <div class="header">
+      <h1 class="text-2xl font-bold">🤖 Trợ lý Văn hóa EVN</h1>
+      <div class="small mt-1 text-white">Bản quyền © 2025 by Phạm Hồng Long & Brown Eyes</div>
+    </div>
+
+    <div class="body">
+      <!-- LEFT: menu -->
+      <div class="left">
+        <div class="card">
+          <input id="searchInput" class="search" placeholder="Tìm nhanh câu hỏi (từ khoá)" />
+          <div style="display:flex;gap:8px;">
+            <button id="btnQA" class="menu-btn active">📖 Hỏi - Đáp VHDN</button>
+            <button id="btnVideo" class="menu-btn">🎬 Video VHDN</button>
+            <button id="btnQuiz" class="menu-btn">📝 Bài kiểm tra VHDN</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="small font-semibold mb-2">Chọn nhóm theo Bloom</div>
+          <button class="menu-btn" data-group="remember">Cấp độ 1: Ghi nhớ (Remembering)</button>
+          <button class="menu-btn" data-group="understand">Cấp độ 2: Thông hiểu (Understanding)</button>
+          <button class="menu-btn" data-group="apply">Cấp độ 3: Vận dụng (Applying)</button>
+          <button class="menu-btn" data-group="higher">Cấp độ 4-6: Phân tích/Đánh giá/Sáng tạo</button>
+        </div>
+
+        <div class="card">
+          <div class="small font-semibold mb-2">Mẹo dùng</div>
+          <div class="small">• Dùng ô tìm kiếm để lọc câu hỏi theo từ khoá. <br>• Trong Quiz: bấm "Xem đáp án" để kiểm tra và chọn "Đã nhớ" / "Cần ôn lại".</div>
+        </div>
+      </div>
+
+      <!-- RIGHT: content -->
+      <div class="right" id="contentArea">
+        <!-- content injected by JS -->
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ================= DATA: 50 FAQs (the user-provided list)
+   Each item: {id, group, question, answer, source}
+   Sources: QĐ1056 (2022) and QĐ25 (2023) — cited in header. */
+const faqs = [
+  // REMEMBERING (1-15)
+  {id:1, group:'remember', q:"Sứ mệnh của Tập đoàn Điện lực Việt Nam (EVN) là gì?", a:"Sứ mệnh của EVN là cung cấp điện với chất lượng và dịch vụ ngày càng tốt hơn, đảm bảo trách nhiệm với môi trường và cộng đồng."},
+  {id:2, group:'remember', q:"Khẩu hiệu của EVN là gì?", a:"Khẩu hiệu của EVN là “EVN Thắp sáng niềm tin”."},
+  {id:3, group:'remember', q:"Tài liệu Văn hóa Tập đoàn Điện lực Việt Nam được ban hành kèm theo Quyết định số và thời điểm nào?", a:"Tài liệu Văn hóa EVN được ban hành kèm theo Quyết định (QĐ-EVN) tại Hà Nội, tháng 7 năm 2022."},
+  {id:4, group:'remember', q:"Tài liệu Văn hóa EVN liệt kê bao nhiêu Giá trị cốt lõi? Kể tên.", a:"Tài liệu liệt kê 5 giá trị cốt lõi: Niềm tin, Chất lượng, Tiên phong, Sáng tạo, Trách nhiệm."},
+  {id:5, group:'remember', q:"Năm chuẩn mực đạo đức nghề nghiệp của người EVN là gì?", a:"Năm chuẩn mực: An toàn - Đoàn kết - Nhân văn - Trung thực - Minh bạch."},
+  {id:6, group:'remember', q:"Triết lý hoạt động của EVN tập trung vào những yếu tố nào?", a:"Tập trung: Khách hàng là trung tâm, con người là tài sản quý nhất, niềm tin được thắp sáng bằng các giá trị tạo dựng và chia sẻ."},
+  {id:7, group:'remember', q:"Nguyên tắc thứ nhất trong các Nguyên tắc cơ bản của EVN là gì?", a:"Nguyên tắc thứ nhất: Đã là EVN thì chất lượng và đáng tin cậy."},
+  {id:8, group:'remember', q:"Cam kết của EVN đối với Đảng, Chính phủ là gì?", a:"Cam kết: “EVN luôn tiên phong, sáng tạo vì nguồn năng lượng cho đất nước”."},
+  {id:9, group:'remember', q:"Khi đi công tác tại nước ngoài, CBCNV phải tuân thủ luật pháp của những nước nào?", a:"Phải tuân thủ luật pháp quốc tế, luật pháp nước bạn và luật pháp Việt Nam."},
+  {id:10, group:'remember', q:"EVN coi đối tác là ai và mong muốn xây dựng mối quan hệ như thế nào?", a:"EVN coi đối tác là những người bạn đồng hành tin cậy; mong muốn quan hệ thân thiện, bền vững, trên cơ sở bình đẳng và cùng có lợi."},
+  {id:11, group:'remember', q:"Tầm nhìn của EVN là gì?", a:"EVN hướng tới là tập đoàn kinh tế hàng đầu trong lĩnh vực năng lượng tại Việt Nam và khu vực châu Á."},
+  {id:12, group:'remember', q:"Khi tổ chức tiệc chiêu đãi, nguyên tắc bố trí chỗ ngồi cho khách có cùng hàm giữa Chủ và Khách là gì?", a:"Nếu Chủ và Khách có cùng hàm thì cần ưu tiên cho Khách."},
+  {id:13, group:'remember', q:"Bộ Quy tắc ứng xử văn hóa EVN được ban hành vào thời điểm nào?", a:"Bộ Quy tắc ứng xử được ban hành vào tháng 01 năm 2023."},
+  {id:14, group:'remember', q:"Khi đi taxi, người mời (hoặc người đón) ngồi ở vị trí nào?", a:"Người mời/người đón ngồi ghế hàng trên bên cạnh lái xe để tiện thanh toán."},
+  {id:15, group:'remember', q:"Chuẩn mực đạo đức nghề nghiệp nào EVN coi là tôn chỉ hành động?", a:"Đó là chuẩn mực ‘An toàn’."},
+
+  // UNDERSTANDING (16-30)
+  {id:16, group:'understand', q:"Ý nghĩa của giá trị cốt lõi 'Tiên phong' đối với EVN là gì?", a:"Tiên phong có nghĩa là mở đường, chủ động phản ứng nhanh và hiệu quả với thay đổi để nắm bắt cơ hội và làm chủ tương lai."},
+  {id:17, group:'understand', q:"Làm việc với 'tư duy đích đến' được hiểu như thế nào theo Nguyên tắc thứ hai?", a:"Bắt đầu công việc với mục tiêu rõ ràng, xác định kết quả mong muốn và chọn phương pháp triển khai hiệu quả để đạt kết quả đó."},
+  {id:18, group:'understand', q:"Tại sao EVN cam kết 'Người lao động luôn là tài sản quý giá nhất'?", a:"Vì EVN coi người lao động là tài sản, cần đảm bảo ổn định việc làm, phát triển điều kiện làm việc, đời sống vật chất và tinh thần, môi trường an toàn và công bằng."},
+  {id:19, group:'understand', q:"Ý nghĩa của chuẩn mực 'Trung thực' trong EVN là gì?", a:"Trung thực nhằm xây dựng niềm tin; thực thi ‘lời nói đi đôi với việc làm’ và phản ánh đúng bản chất sự việc."},
+  {id:20, group:'understand', q:"Ý nghĩa của 'Lãnh đạo phải làm gương' là gì?", a:"Lãnh đạo cần là tấm gương về phẩm chất đạo đức, tác phong làm việc và tinh thần học hỏi, dẫn dắt bằng hành vi."},
+  {id:21, group:'understand', q:"Trong ứng xử với cộng đồng, người EVN cần gương mẫu thực hiện những gì?", a:"Gương mẫu thực hiện và vận động cộng đồng tuân thủ chủ trương, chính sách, pháp luật và quy định địa phương."},
+  {id:22, group:'understand', q:"Tại sao công khai, minh bạch trong hoạt động EVN quan trọng?", a:"Minh bạch gia tăng lòng tin, xây dựng nền tảng kinh doanh tin cậy, giúp giải quyết công việc hiệu quả và củng cố đoàn kết nội bộ."},
+  {id:23, group:'understand', q:"Ý nghĩa của chuẩn mực 'Tận tâm' là gì?", a:"Tận tâm là làm việc hết lòng, cống hiến vì khách hàng, vì EVN và vì đất nước."},
+  {id:24, group:'understand', q:"Để củng cố niềm tin, EVN cam kết gì đối với môi trường?", a:"EVN cam kết nâng cao trách nhiệm bảo vệ môi trường, giảm thiểu tác động và chủ động ứng phó biến đổi khí hậu."},
+  {id:25, group:'understand', q:"Quy tắc giao tiếp qua điện thoại khi gọi đến là gì?", a:"Khi gọi: chào, xưng tên/chức danh/bộ phận, nội dung ngắn gọn, nói chậm, kết thúc có lời cảm ơn/chào."},
+  {id:26, group:'understand', q:"EVN định hình tư duy sáng tạo nhằm mục đích gì?", a:"Mục đích là truyền cảm hứng để thực thi sứ mệnh EVN qua đổi mới và nâng cao hiệu quả."},
+  {id:27, group:'understand', q:"Tại sao chất lượng điện và dịch vụ là then chốt?", a:"Vì đó đem lại sự hài lòng khách hàng và duy trì niềm tin xã hội với EVN."},
+  {id:28, group:'understand', q:"Thế nào là hành động 'Sống nghĩa tình' theo EVN?", a:"Sống nghĩa tình: biết ơn, tri ân, chăm lo đời sống người lao động và hỗ trợ cộng đồng."},
+  {id:29, group:'understand', q:"Theo Quy tắc, thế nào là xung đột lợi ích?", a:"Xung đột lợi ích là làm những việc gây mâu thuẫn lợi ích với EVN; nghiêm cấm dùng tài sản/thời gian của EVN cho mục đích cá nhân."},
+  {id:30, group:'understand', q:"Việc đánh giá công việc theo Nguyên tắc thứ hai được thực hiện thế nào?", a:"Đánh giá dựa trên kết quả định lượng, đo lường được để ghi nhận nỗ lực."},
+
+  // APPLYING (31-40)
+  {id:31, group:'apply', q:"Khi gặp đồng nghiệp và đối tác nước ngoài cùng lúc, giới thiệu ai trước?", a:"Giới thiệu người trong cơ quan trước với đối tác/người mới đến (ưu tiên theo chức vụ, tuổi tác)."},
+  {id:32, group:'apply', q:"Để thực hiện giá trị 'Chất lượng', cần làm gì hàng ngày?", a:"Kiểm soát chất lượng từng công đoạn, không ngừng cải tiến bằng sáng kiến và ứng dụng công nghệ số."},
+  {id:33, group:'apply', q:"Nếu thấy quyết định cấp trên không phù hợp, CBCNV nên làm gì?", a:"Báo cáo cấp trên để xem xét; nếu không thay đổi thì chấp hành nhưng có quyền bảo lưu ý kiến và báo cáo lên cấp cao hơn."},
+  {id:34, group:'apply', q:"Thể hiện tinh thần 'Hợp tác' khi giải quyết công việc như thế nào?", a:"Chủ động chia sẻ thông tin, phối hợp hiệu quả, không đùn đẩy trách nhiệm."},
+  {id:35, group:'apply', q:"Khi khách hàng có thắc mắc, CBCNV thuộc bộ phận khác có trách nhiệm gì?", a:"Mọi CBCNV có trách nhiệm giải đáp hoặc chuyển/liên hệ bộ phận có trách nhiệm để xử lý."},
+  {id:36, group:'apply', q:"Để minh bạch trong nội bộ, lãnh đạo cần làm gì khi ra quyết định?", a:"Nêu gương công khai, minh bạch, chịu trách nhiệm giải trình cho quyết định của mình."},
+  {id:37, group:'apply', q:"Có được mặc quần jeans và dép lê trong giờ làm ở trụ sở không?", a:"Không được mặc áo phông, quần jeans, đi dép lê trong giờ làm việc."},
+  {id:38, group:'apply', q:"Để thúc đẩy 'Sáng tạo', môi trường làm việc cần thế nào?", a:"Cần cởi mở, năng động, khuyến khích ý tưởng mới và sáng kiến cải tiến."},
+  {id:39, group:'apply', q:"Khi tham gia mạng xã hội, cần tránh chia sẻ loại thông tin nào?", a:"Không chia sẻ thông tin xấu, quan điểm tiêu cực hoặc thông tin gây hại về khách hàng/đối tác/cộng đồng."},
+  {id:40, group:'apply', q:"Khi vào thang máy, ưu tiên nhường cho ai?", a:"Ưu tiên khách hàng, đối tác, lãnh đạo, người lớn tuổi, người khuyết tật, phụ nữ có thai và trẻ em."},
+
+  // ANALYZING/EVALUATING/CREATING (41-50)
+  {id:41, group:'higher', q:"Phân biệt 'Trung thực' và 'Minh bạch' trong văn hóa EVN.", a:"Trung thực: nói đi đôi với làm, phản ánh đúng bản chất; Minh bạch: công khai thông tin/quy trình để gia tăng lòng tin và củng cố đoàn kết."},
+  {id:42, group:'higher', q:"Mối quan hệ giữa 'Đoàn kết' và 'Cá nhân xuất sắc' là gì?", a:"Đoàn kết tạo sức mạnh tập thể; cá nhân xuất sắc là nguồn lực tạo sáng tạo, cần được gắn kết để cống hiến cho tập thể."},
+  {id:43, group:'higher', q:"Ý nghĩa của việc không thỏa hiệp với hành vi vi phạm pháp luật đối với 'Trách nhiệm'?", a:"Bảo vệ toàn vẹn tổ chức; tố cáo hành vi sai trái là thực thi trách nhiệm và bảo đảm tính liêm chính."},
+  {id:44, group:'higher', q:"'Tiên phong' + 'Sáng tạo' hỗ trợ cam kết vì môi trường thế nào?", a:"Tiên phong dẫn dắt chuyển đổi năng lượng; sáng tạo ứng dụng công nghệ 'xanh' để giảm tác động môi trường."},
+  {id:45, group:'higher', q:"Tại sao tôn trọng khác biệt cần thiết để xây dựng 'Đoàn kết'?", a:"Tôn trọng khác biệt nuôi dưỡng tinh thần đồng đội, tránh phân biệt, giúp trí tuệ tập thể phát huy."},
+  {id:46, group:'higher', q:"Hành động cụ thể cho lãnh đạo để 'Chủ động học hỏi, thích ứng'?", a:"Dẫn dắt thay đổi, lắng nghe, ghi nhận, cam kết hỗ trợ thực hiện thay đổi và học hỏi liên tục với tinh thần cầu thị."},
+  {id:47, group:'higher', q:"'Chuyên nghiệp' và 'Tôn trọng' thể hiện thế nào trong giao tiếp CBCNV?", a:"Chuyên nghiệp: thái độ thân thiện, xử lý đúng quy trình; Tôn trọng: bảo vệ nhân phẩm, chấp nhận khác biệt."},
+  {id:48, group:'higher', q:"Tại sao EVN quy định tắt điện thoại trong hội họp?", a:"Đảm bảo tính chuyên nghiệp, tôn trọng người chủ trì và tăng hiệu quả hội họp."},
+  {id:49, group:'higher', q:"Tầm nhìn EVN liên quan đến 'liên tục cải tiến' như thế nào?", a:"Để đạt vị thế hàng đầu, EVN cần không ngừng đổi mới, nâng tầm tiêu chuẩn chất lượng và dịch vụ theo khu vực."},
+  {id:50, group:'higher', q:"Hãy đề xuất sáng kiến xã hội cụ thể dựa trên cam kết 'Vì một cộng đồng phát triển bền vững'.", a:"Ví dụ sáng kiến: chương trình phòng chống biến đổi khí hậu kết hợp đào tạo cộng đồng, hỗ trợ giáo dục và chăm sóc sức khỏe cho vùng chịu ảnh hưởng; phối hợp các chương trình an sinh xã hội."}
+];
+
+/* ================= UI logic ================== */
+const content = document.getElementById('contentArea');
+const btnQA = document.getElementById('btnQA');
+const btnVideo = document.getElementById('btnVideo');
+const btnQuiz = document.getElementById('btnQuiz');
+const searchInput = document.getElementById('searchInput');
+
+function setActiveMenu(activeBtn){
+  document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));
+  activeBtn.classList.add('active');
+}
+
+/* render Hỏi-Đáp: list by group or search */
+function renderQAMenu(filterGroup=null, query=null){
+  setActiveMenu(btnQA);
+  let list = faqs.slice();
+  if(filterGroup) list = list.filter(x=>x.group===filterGroup);
+  if(query){
+    const q = query.trim().toLowerCase();
+    list = list.filter(x=> x.q.toLowerCase().includes(q) || x.a.toLowerCase().includes(q));
+  }
+  content.innerHTML = '';
+  const header = document.createElement('div');
+  header.className='card';
+  header.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
+    <div>
+      <h2 class="text-lg font-bold">Hỏi - Đáp Văn hóa EVN</h2>
+      <div class="small">Danh mục câu hỏi: ${list.length} câu. (Nguồn: QĐ1056 7/2022, QĐ25 01/2023)</div>
+    </div>
+    <div><button class="btn ghost" onclick="renderQASummary()">Tóm tắt nhanh</button></div>
+  </div>`;
+  content.appendChild(header);
+
+  const listDiv = document.createElement('div');
+  listDiv.className='card';
+  if(list.length===0){
+    listDiv.innerHTML = '<div class="small">Không tìm thấy câu hỏi phù hợp.</div>';
+    content.appendChild(listDiv);
+    return;
+  }
+  list.forEach(item=>{
+    const el = document.createElement('div');
+    el.className='qa-item';
+    el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:start">
+      <div style="flex:1">
+        <div class="font-semibold">C${item.id}. ${item.q}</div>
+        <div class="small mt-1" id="ans-${item.id}" style="display:none;"><pre>${item.a}</pre><div class="small mt-1 text-slate-500">Nguồn: QĐ1056 / QĐ25</div></div>
+      </div>
+      <div style="margin-left:10px;display:flex;flex-direction:column;gap:8px">
+        <button class="btn primary" onclick="toggleAnswer(${item.id})">Xem đáp án</button>
+        <button class="btn ghost" onclick="copyQuestion(${item.id})">Sao chép</button>
+      </div>
+    </div>`;
+    listDiv.appendChild(el);
+  });
+  content.appendChild(listDiv);
+}
+
+/* show compact summary of key values */
+function renderQASummary(){
+  setActiveMenu(btnQA);
+  content.innerHTML = '';
+  const el = document.createElement('div');
+  el.className='card';
+  el.innerHTML = `<h2 class="text-lg font-bold">Tóm tắt nhanh - Những điểm then chốt</h2>
+    <ul class="small mt-2">
+      <li>• Giá trị cốt lõi: Niềm tin, Chất lượng, Tiên phong, Sáng tạo, Trách nhiệm.</li>
+      <li>• Chuẩn mực đạo đức: An toàn; Đoàn kết; Nhân văn; Trung thực; Minh bạch.</li>
+      <li>• Triết lý: Khách hàng là trung tâm; Con người là tài sản; An toàn - Chất lượng - Hiệu quả.</li>
+      <li>• Quy tắc ứng xử: Giao tiếp lịch thiệp; Minh bạch; Trách nhiệm; Tôn trọng đa dạng.</li>
+    </ul>
+    <div class="small mt-3">(Nguồn: QĐ1056 7/2022, QĐ25 01/2023)</div>`;
+  content.appendChild(el);
+  // then list first 5 FAQs as highlight
+  const h = document.createElement('div'); h.className='card';
+  h.innerHTML = '<div class="font-semibold mb-2">Một vài câu hỏi nổi bật</div>';
+  faqs.slice(0,5).forEach(it=>{
+    const d = document.createElement('div');
+    d.className='qa-item';
+    d.innerHTML = `<div class="font-semibold">C${it.id}. ${it.q}</div><div class="small mt-1">${it.a}</div>`;
+    h.appendChild(d);
+  });
+  content.appendChild(h);
+}
+
+function toggleAnswer(id){
+  const el = document.getElementById(`ans-${id}`);
+  if(!el) return;
+  el.style.display = (el.style.display==='none') ? 'block' : 'none';
+  el.scrollIntoView({behavior:'smooth',block:'center'});
+}
+function copyQuestion(id){
+  const it = faqs.find(x=>x.id===id);
+  if(!it) return;
+  navigator.clipboard?.writeText(`${it.q}\n\n${it.a}`).then(()=>{ alert('Đã sao chép câu hỏi + đáp án vào clipboard'); }, ()=>{ alert('Không thể sao chép'); });
+}
+
+/* ========== Video ========== */
+function renderVideo(){
+  setActiveMenu(btnVideo);
+  content.innerHTML = '';
+  const el = document.createElement('div'); el.className='card';
+  el.innerHTML = `<h2 class="text-lg font-bold">Video giới thiệu Văn hóa EVN</h2>
+    <div class="small mt-2">Danh sách video tham khảo (doanh nghiệp):</div>
+    <div style="margin-top:12px; display:flex; flex-direction:column; gap:10px;">
+      <a class="btn primary" href="https://g.co/gemini/share/1e73b96fdb85" target="_blank">▶️ Câu chuyện: Ánh Sáng Cam Trên Bản Núi</a>
+      <a class="btn primary" href="https://g.co/gemini/share/4a4d9914a9aa" target="_blank">▶️ Câu chuyện: Ánh Sáng Sau Cơn Bão</a>
+      <a class="btn primary" href="https://g.co/gemini/share/82086658cc67" target="_blank">▶️ Câu chuyện: Văn hóa ứng xử_001</a>
+      <a class="btn primary" href="https://g.co/gemini/share/ba8e000385e9" target="_blank">▶️ Câu chuyện: Áo Cam Giữa Biển Nước</a>
+      <a class="btn primary" href="https://g.co/gemini/share/fdbdde88797d" target="_blank">▶️ Câu chuyện: Âm Thanh Của Trách Nhiệm</a>
+      <a class="btn primary" href="https://www.youtube.com/watch?v=bSB7JhLBfGU" target="_blank">▶️ Câu chuyện: Điện lực Định Hóa</a>
+    </div>
+    <div class="small mt-3">Nguồn video: do Phạm Hồng Long cung cấp.</div>`;
+  content.appendChild(el);
+}
+
+/* ========== QUIZ (interactive "self-check" từ 50 câu) ========== */
+let quizIndex = 0;
+let quizMarks = 0;
+let quizOrder = [];
+
+function startQuiz(){
+  setActiveMenu(btnQuiz);
+  // prepare: shuffle indices 0..49 or use all 50 in order
+  quizOrder = faqs.map(f => f.id); // use full set in order (can be randomized)
+  quizIndex = 0; quizMarks = 0;
+  renderQuizQuestion();
+}
+
+function renderQuizQuestion(){
+  content.innerHTML = '';
+  if(quizIndex >= quizOrder.length){
+    // finished
+    const el = document.createElement('div'); el.className='card';
+    el.innerHTML = `<h2 class="text-lg font-bold">Kết quả bài kiểm tra VHDN</h2>
+      <div class="small mt-2">Bạn đã đánh dấu <b>${quizMarks}</b> câu là <b>Đã nhớ</b> trong tổng <b>${quizOrder.length}</b> câu.</div>
+      <div style="margin-top:12px;"><button class="btn primary" onclick="startQuiz()">Làm lại</button>
+      <button class="btn ghost" onclick="renderQAMenu()">Xem Hỏi-Đáp</button></div>`;
+    content.appendChild(el);
+    return;
+  }
+
+  const qid = quizOrder[quizIndex];
+  const it = faqs.find(f=>f.id===qid);
+  const el = document.createElement('div'); el.className='card';
+  el.innerHTML = `<h2 class="text-lg font-bold">Bài kiểm tra VHDN — Câu ${quizIndex+1}/${quizOrder.length}</h2>
+    <div class="small mt-3 font-semibold">${it.q}</div>
+    <div class="small mt-3" id="answerArea" style="display:none;"><pre>${it.a}</pre></div>
+    <div style="margin-top:14px;display:flex;gap:8px;">
+      <button class="btn primary" onclick="revealAnswer()">Xem đáp án</button>
+      <button id="btnRemember" class="btn ghost" onclick="markRemember(true)" style="display:none">Đã nhớ</button>
+      <button id="btnReview" class="btn ghost" onclick="markRemember(false)" style="display:none">Cần ôn lại</button>
+      <button class="btn" style="margin-left:auto" onclick="skipQuestion()">Bỏ qua</button>
+    </div>
+    <div class="small mt-3 text-slate-500">Ghi chú: bấm 'Đã nhớ' nếu bạn nắm chắc đáp án, 'Cần ôn lại' nếu muốn đánh dấu ôn lại.</div>`;
+  content.appendChild(el);
+}
+
+function revealAnswer(){
+  document.getElementById('answerArea').style.display='block';
+  document.getElementById('btnRemember').style.display='inline-block';
+  document.getElementById('btnReview').style.display='inline-block';
+}
+
+function markRemember(flag){
+  if(flag) quizMarks++;
+  quizIndex++;
+  setTimeout(()=> renderQuizQuestion(), 300);
+}
+
+function skipQuestion(){
+  quizIndex++;
+  renderQuizQuestion();
+}
+
+/* ========== Search handler ========== */
+searchInput.addEventListener('input', e=>{
+  const v = e.target.value;
+  if(v.trim()==='') { renderQAMenu(); return; }
+  renderQAMenu(null, v);
+});
+
+/* ========== Menu buttons ========= */
+btnQA.addEventListener('click', ()=> renderQAMenu());
+btnVideo.addEventListener('click', ()=> renderVideo());
+btnQuiz.addEventListener('click', ()=> startQuiz());
+
+/* group buttons (left) */
+document.querySelectorAll('[data-group]').forEach(b=>{
+  b.addEventListener('click', ()=> renderQAMenu(b.dataset.group));
+});
+
+/* init */
+renderQAMenu();
+
+</script>
+</body>
+</html>
+
