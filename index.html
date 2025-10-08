@@ -477,7 +477,9 @@ async function callGeminiAPI(payload, loadingElement) {
     loadingElement.innerHTML = 'Đang kết nối với Trợ lý AI...';
     loadingElement.style.display = 'block';
 
-    const apiKey = ""; 
+    // !!! QUAN TRỌNG: Dán API Key của bạn vào đây
+    // Lấy key từ: https://aistudio.google.com/app/apikey
+    const apiKey = "AIzaSyAiw7XeJcOIriBW6mtVpAyNtdgtcE8KLLs"; 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
     
     try {
@@ -937,4 +939,5 @@ renderQAMenu();
 </script>
 </body>
 </html>
+
 
