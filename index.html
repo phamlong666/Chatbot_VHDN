@@ -11,24 +11,53 @@
     .chatbot { width:100%; max-width:820px; background:#fff; border-radius:12px; box-shadow:0 8px 30px rgba(2,6,23,0.08); overflow:hidden; display:flex; flex-direction:column; min-height:640px; }
     .header { background:linear-gradient(90deg,var(--evn-blue), #004b8a); color:#fff; padding:18px; text-align:center; }
     .body { display:flex; gap:1rem; padding:18px; flex:1; }
-    .left { width:320px; border-right:1px solid #eef2f6; padding-right:12px; }
-    .right { flex:1; padding-left:12px; overflow:auto; }
+    .left { width:320px; border-right:1px solid #eef2f6; padding-right:12px; flex-shrink: 0; }
+    .right { flex:1; padding-left:12px; overflow:auto; min-width: 0; }
     .menu-btn { display:block; width:100%; text-align:left; margin-bottom:8px; padding:10px 12px; background:#f7f9fb; border-radius:8px; cursor:pointer; border:1px solid #e6eef6; font-weight:600; color:#0f1724; }
     .menu-btn.active { background:var(--evn-blue); color:#fff; border-color:rgba(255,255,255,0.06); }
-    .card { background:#fff; border-radius:10px; padding:12px; box-shadow: 0 2px 8px rgba(12,20,40,0.04); margin-bottom:12px; }
+    .card { background:#fff; border-radius:10px; padding:16px; box-shadow: 0 2px 8px rgba(12,20,40,0.04); margin-bottom:12px; }
     .qa-item { padding:10px; border-radius:8px; background:#f8fbff; margin-bottom:8px; }
     .btn { padding:8px 12px; border-radius:8px; cursor:pointer; border:none; font-weight:600; }
     .btn.primary { background:var(--evn-blue); color:#fff; }
     .btn.ghost { background:#fff; border:1px solid #d7e6fb; color:#0b2540; }
+    .btn.small { padding: 6px 10px; font-size: 12px; }
     .small { font-size:13px; color:#475569; }
-    .search { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6eef6; margin-bottom:10px; }
+    .search { width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6eef6; margin-bottom:10px; background: #fdfdff; }
     pre { white-space:pre-wrap; word-wrap:break-word; font-family:inherit; }
-    /* Styles for new quiz */
     .quiz-option { display: block; width: 100%; text-align: left; padding: 10px; margin-bottom: 8px; border: 1px solid #d1d5db; border-radius: 8px; cursor: pointer; }
     .quiz-option:hover { background-color: #f3f4f6; }
     .quiz-option.correct { background-color: #d1fae5; border-color: #10b981; }
     .quiz-option.incorrect { background-color: #fee2e2; border-color: #ef4444; }
     .quiz-option:disabled { cursor: not-allowed; opacity: 0.8; }
+    
+    #chatbot-assistant-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: none; align-items: flex-end; gap: 12px; opacity: 0; transform: translateY(20px); transition: opacity 0.3s ease, transform 0.3s ease; }
+    #chatbot-assistant-container.visible { display: flex; opacity: 1; transform: translateY(0); }
+    #chatbot-avatar { width: 90px; height: 90px; border-radius: 50%; background-color: var(--evn-blue); padding: 5px; box-shadow: 0 4px 15px rgba(0, 91, 172, 0.3); flex-shrink: 0; }
+    #speech-bubble { background-color: #ffffff; padding: 16px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); width: 320px; max-width: 80vw; position: relative; border: 1px solid #e5e7eb; }
+    #chatbot-question { font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 14px; }
+    #chatbot-answer { font-size: 13px; color: #4b5563; max-height: 200px; overflow-y: auto; }
+    #close-chatbot { position: absolute; top: 8px; right: 8px; background: #e5e7eb; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-weight: bold; color: #4b5563; display: flex; align-items: center; justify-content: center; }
+    #close-chatbot:hover { background-color: #d1d5db; }
+
+    /* Mindmap Styles */
+    .mindmap { text-align: center; }
+    .mindmap ul { padding: 0; margin: 0; list-style: none; position: relative; }
+    .mindmap ul ul { margin-top: 20px; }
+    .mindmap li { position: relative; padding: 20px 0 0 0; }
+    .mindmap li::before { content: ''; position: absolute; top: 0; left: 50%; border-left: 1px solid #ccc; width: 0; height: 20px; }
+    .mindmap li:first-child::before { display: none; }
+    .mindmap li a { font-size: 12px; text-decoration: none; color: #333; background: #f4f4f4; padding: 4px 8px; border-radius: 5px; display: inline-block; min-width: 80px; border: 1px solid #ddd; }
+    .mindmap > ul > li > a { background: var(--evn-blue); color: white; padding: 8px 15px; font-weight: bold; font-size: 16px;}
+    .mindmap ul > li > ul > li a { background: #eaf4ff; border-color: #b8d6fb;}
+    .mindmap ul > li > ul > li > ul > li a { background: #f7f9fb; border-color: #e6eef6; font-size: 11px;}
+    
+    /* Timeline Styles */
+    .timeline { position: relative; max-width: 100%; margin: 0 auto; }
+    .timeline::after { content: ''; position: absolute; width: 3px; background-color: #e6eef6; top: 0; bottom: 0; left: 15px; }
+    .timeline-item { padding: 10px 40px; position: relative; background-color: inherit; width: 100%; }
+    .timeline-item::after { content: ''; position: absolute; width: 15px; height: 15px; right: auto; background-color: white; border: 3px solid var(--evn-blue); top: 15px; left: 8px; border-radius: 50%; z-index: 1; }
+    .timeline-content { padding: 15px; background-color: #f8fbff; border-radius: 6px; }
+
     @media(max-width:900px){ .body { flex-direction:column; } .left{ width:100%; border-right:none; padding-right:0 } }
   </style>
 </head>
@@ -49,6 +78,7 @@
             <button id="btnVideo" class="menu-btn">🎬 Video VHDN</button>
             <button id="btnQuiz" class="menu-btn">📝 Bài kiểm tra VHDN</button>
             <button id="btnNewQuiz" class="menu-btn">🚀 Thi trắc nghiệm VHDN</button>
+            <button id="btnLeaderTools" class="menu-btn">✨ Công cụ Lãnh đạo</button>
           </div>
         </div>
 
@@ -73,10 +103,39 @@
     </div>
   </div>
 
+  <!-- Chatbot Assistant Element -->
+  <div id="chatbot-assistant-container">
+    <div id="speech-bubble">
+      <button id="close-chatbot" title="Đóng">X</button>
+      <div id="chatbot-question"></div>
+      <div id="chatbot-answer"></div>
+      <div class="mt-3 pt-3 border-t border-gray-200 flex gap-2">
+        <button id="btn-speak-vi" class="btn primary small flex-1">Nghe Tiếng Việt</button>
+        <button id="btn-speak-en" class="btn ghost small flex-1">Nghe Tiếng Anh</button>
+      </div>
+    </div>
+    <div id="chatbot-avatar">
+      <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="48" fill="#fff"/>
+        <path d="M 50,90 C 27,90 15,70 15,50 C 15,30 25,15 50,15 C 75,15 85,30 85,50 C 85,70 73,90 50,90 Z" fill="#f0e0d0"/>
+        <path d="M 30,65 Q 50,80 70,65" stroke="#6b4636" stroke-width="2" fill="none"/>
+        <circle cx="35" cy="45" r="5" fill="#2c2c2c"/>
+        <circle cx="65" cy="45" r="5" fill="#2c2c2c"/>
+        <path d="M 20,40 C 30,20 70,20 80,40" fill="#4a3528"/>
+        <path d="M 50,15 C 40,25 60,25 50,15" fill="#4a3528"/>
+        <ellipse cx="50" cy="22" rx="28" ry="8" fill="rgba(255,255,255,0.2)"/>
+        <!-- Headset -->
+        <path d="M 25,45 A 25 25 0 0 1 75 45" stroke="#5a67d8" stroke-width="6" fill="none" stroke-linecap="round"/>
+        <circle cx="25" cy="45" r="8" fill="#434190"/>
+        <circle cx="75" cy="45" r="8" fill="#434190"/>
+        <path d="M 75,45 L 70,60" stroke="#5a67d8" stroke-width="3" fill="none"/>
+        <circle cx="70" cy="60" r="4" fill="#434190"/>
+      </svg>
+    </div>
+  </div>
+
 <script>
-/* ================= DATA: 50 FAQs (the user-provided list)
-   Each item: {id, group, question, answer, source}
-   Sources: QĐ1056 (2022) and QĐ25 (2023) — cited in header. */
+/* ================= DATA: 50 FAQs (the user-provided list) ================= */
 const faqs = [
   // REMEMBERING (1-15)
   {id:1, group:'remember', q:"Sứ mệnh của Tập đoàn Điện lực Việt Nam (EVN) là gì?", a:"Sứ mệnh của EVN là cung cấp điện với chất lượng và dịch vụ ngày càng tốt hơn, đảm bảo trách nhiệm với môi trường và cộng đồng."},
@@ -143,7 +202,9 @@ const btnQA = document.getElementById('btnQA');
 const btnVideo = document.getElementById('btnVideo');
 const btnQuiz = document.getElementById('btnQuiz');
 const btnNewQuiz = document.getElementById('btnNewQuiz');
+const btnLeaderTools = document.getElementById('btnLeaderTools');
 const searchInput = document.getElementById('searchInput');
+const chatbotContainer = document.getElementById('chatbot-assistant-container');
 
 function setActiveMenu(activeBtn){
   document.querySelectorAll('.menu-btn').forEach(b=>b.classList.remove('active'));
@@ -165,7 +226,7 @@ function renderQAMenu(filterGroup=null, query=null){
   header.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center">
     <div>
       <h2 class="text-lg font-bold">Hỏi - Đáp Văn hóa EVN</h2>
-      <div class="small">Danh mục câu hỏi: ${list.length} câu. (Nguồn: QĐ1056 7/2022, QĐ25 01/2023)</div>
+      <div class="small">Danh mục ${list.length} câu hỏi. Nhấn "Xem đáp án" để Trợ lý ảo trả lời.</div>
     </div>
     <div><button class="btn ghost" onclick="renderQASummary()">Tóm tắt nhanh</button></div>
   </div>`;
@@ -173,8 +234,16 @@ function renderQAMenu(filterGroup=null, query=null){
 
   const listDiv = document.createElement('div');
   listDiv.className='card';
-  if(list.length===0){
-    listDiv.innerHTML = '<div class="small">Không tìm thấy câu hỏi phù hợp.</div>';
+  if(list.length===0 && query){
+    listDiv.innerHTML = `
+        <div class="text-center p-4">
+            <div class="small mb-3">Không tìm thấy câu hỏi nào phù hợp với từ khoá "${query}".</div>
+            <p class="small mb-3">Bạn có muốn hỏi Trợ lý AI dựa trên toàn bộ tài liệu văn hóa không?</p>
+            <button class="btn primary" onclick="handleDynamicQA('${query}')">✨ Hỏi Trợ lý AI</button>
+            <div id="gemini-loading-qa" class="small mt-4 p-3 rounded-lg bg-gray-100" style="display: none;"></div>
+            <div id="gemini-result-qa" class="qa-item mt-4 text-left" style="display: none;"></div>
+        </div>
+    `;
     content.appendChild(listDiv);
     return;
   }
@@ -184,16 +253,21 @@ function renderQAMenu(filterGroup=null, query=null){
     el.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:start">
       <div style="flex:1">
         <div class="font-semibold">C${item.id}. ${item.q}</div>
-        <div class="small mt-1" id="ans-${item.id}" style="display:none;"><pre>${item.a}</pre><div class="small mt-1 text-slate-500">Nguồn: QĐ1056 / QĐ25</div></div>
       </div>
       <div style="margin-left:10px;display:flex;flex-direction:column;gap:8px">
-        <button class="btn primary" onclick="toggleAnswer(${item.id})">Xem đáp án</button>
+        <button class="btn primary" onclick="showChatbotAnswer(${item.id})">Xem đáp án</button>
         <button class="btn ghost" onclick="copyQuestion(${item.id})">Sao chép</button>
       </div>
     </div>`;
     listDiv.appendChild(el);
   });
   content.appendChild(listDiv);
+}
+
+function copyQuestion(id){
+  const it = faqs.find(x=>x.id===id);
+  if(!it) return;
+  navigator.clipboard?.writeText(`${it.q}\n\n${it.a}`).then(()=>{ alert('Đã sao chép câu hỏi + đáp án vào clipboard'); }, ()=>{ alert('Không thể sao chép'); });
 }
 
 /* show compact summary of key values */
@@ -211,33 +285,13 @@ function renderQASummary(){
     </ul>
     <div class="small mt-3">(Nguồn: QĐ1056 7/2022, QĐ25 01/2023)</div>`;
   content.appendChild(el);
-  // then list first 5 FAQs as highlight
-  const h = document.createElement('div'); h.className='card';
-  h.innerHTML = '<div class="font-semibold mb-2">Một vài câu hỏi nổi bật</div>';
-  faqs.slice(0,5).forEach(it=>{
-    const d = document.createElement('div');
-    d.className='qa-item';
-    d.innerHTML = `<div class="font-semibold">C${it.id}. ${it.q}</div><div class="small mt-1">${it.a}</div>`;
-    h.appendChild(d);
-  });
-  content.appendChild(h);
 }
 
-function toggleAnswer(id){
-  const el = document.getElementById(`ans-${id}`);
-  if(!el) return;
-  el.style.display = (el.style.display==='none') ? 'block' : 'none';
-  el.scrollIntoView({behavior:'smooth',block:'center'});
-}
-function copyQuestion(id){
-  const it = faqs.find(x=>x.id===id);
-  if(!it) return;
-  navigator.clipboard?.writeText(`${it.q}\n\n${it.a}`).then(()=>{ alert('Đã sao chép câu hỏi + đáp án vào clipboard'); }, ()=>{ alert('Không thể sao chép'); });
-}
 
 /* ========== Video ========== */
 function renderVideo(){
   setActiveMenu(btnVideo);
+  hideChatbot();
   content.innerHTML = '';
   const el = document.createElement('div'); el.className='card';
   el.innerHTML = `<h2 class="text-lg font-bold">Video giới thiệu Văn hóa EVN</h2>
@@ -261,8 +315,8 @@ let quizOrder = [];
 
 function startQuiz(){
   setActiveMenu(btnQuiz);
-  // prepare: shuffle indices 0..49 or use all 50 in order
-  quizOrder = faqs.map(f => f.id); // use full set in order (can be randomized)
+  hideChatbot();
+  quizOrder = faqs.map(f => f.id); 
   quizIndex = 0; quizMarks = 0;
   renderQuizQuestion();
 }
@@ -270,7 +324,6 @@ function startQuiz(){
 function renderQuizQuestion(){
   content.innerHTML = '';
   if(quizIndex >= quizOrder.length){
-    // finished
     const el = document.createElement('div'); el.className='card';
     el.innerHTML = `<h2 class="text-lg font-bold">Kết quả bài kiểm tra VHDN</h2>
       <div class="small mt-2">Bạn đã đánh dấu <b>${quizMarks}</b> câu là <b>Đã nhớ</b> trong tổng <b>${quizOrder.length}</b> câu.</div>
@@ -287,7 +340,7 @@ function renderQuizQuestion(){
     <div class="small mt-3 font-semibold">${it.q}</div>
     <div class="small mt-3" id="answerArea" style="display:none;"><pre>${it.a}</pre></div>
     <div style="margin-top:14px;display:flex;gap:8px;">
-      <button class="btn primary" onclick="revealAnswer()">Xem đáp án</button>
+      <button class="btn primary" onclick="revealQuizAnswer()">Xem đáp án</button>
       <button id="btnRemember" class="btn ghost" onclick="markRemember(true)" style="display:none">Đã nhớ</button>
       <button id="btnReview" class="btn ghost" onclick="markRemember(false)" style="display:none">Cần ôn lại</button>
       <button class="btn" style="margin-left:auto" onclick="skipQuestion()">Bỏ qua</button>
@@ -296,7 +349,7 @@ function renderQuizQuestion(){
   content.appendChild(el);
 }
 
-function revealAnswer(){
+function revealQuizAnswer(){
   document.getElementById('answerArea').style.display='block';
   document.getElementById('btnRemember').style.display='inline-block';
   document.getElementById('btnReview').style.display='inline-block';
@@ -316,7 +369,6 @@ function skipQuestion(){
 /* ========== Search handler ========== */
 searchInput.addEventListener('input', e=>{
   const v = e.target.value;
-  if(v.trim()==='') { renderQAMenu(); return; }
   renderQAMenu(null, v);
 });
 
@@ -325,19 +377,363 @@ btnQA.addEventListener('click', ()=> renderQAMenu());
 btnVideo.addEventListener('click', ()=> renderVideo());
 btnQuiz.addEventListener('click', ()=> startQuiz());
 btnNewQuiz.addEventListener('click', ()=> renderNewQuizMenu());
-
-/* group buttons (left) */
+btnLeaderTools.addEventListener('click', () => renderLeaderTools());
 document.querySelectorAll('[data-group]').forEach(b=>{
   b.addEventListener('click', ()=> renderQAMenu(b.dataset.group));
 });
 
-/* init */
-renderQAMenu();
+/* ================================================================= */
+/* ============= CHATBOT ASSISTANT (TRỢ LÝ ẢO) ===================== */
+/* ================================================================= */
+const chatbotQuestionEl = document.getElementById('chatbot-question');
+const chatbotAnswerEl = document.getElementById('chatbot-answer');
+const closeChatbotBtn = document.getElementById('close-chatbot');
+const btnSpeakVi = document.getElementById('btn-speak-vi');
+const btnSpeakEn = document.getElementById('btn-speak-en');
+
+let currentSpokenText = "";
+
+function speak(text, lang) {
+    if (!('speechSynthesis' in window)) {
+        console.error("Trình duyệt không hỗ trợ Text-to-Speech.");
+        alert("Rất tiếc, trình duyệt của bạn không hỗ trợ tính năng giọng nói.");
+        return;
+    }
+
+    // A function to actually speak the text, to be called when voices are ready.
+    const performSpeak = () => {
+        window.speechSynthesis.cancel(); // Stop any currently speaking utterance.
+
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = lang; // Set the language as a primary way to select voice.
+
+        const voices = window.speechSynthesis.getVoices();
+        let selectedVoice = null;
+
+        if (lang === 'vi-VN') {
+            // Find a Vietnamese voice, preferring the official 'vi-VN'.
+            selectedVoice = voices.find(voice => voice.lang === 'vi-VN') || voices.find(voice => voice.lang.startsWith('vi'));
+        } else if (lang === 'en-US') {
+             // Find a US English voice, preferring the official 'en-US'.
+            selectedVoice = voices.find(voice => voice.lang === 'en-US') || voices.find(voice => voice.lang.startsWith('en'));
+        }
+
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+        } else {
+            console.warn(`Không tìm thấy giọng nói cụ thể cho ngôn ngữ: ${lang}. Trình duyệt sẽ sử dụng giọng mặc định.`);
+        }
+
+        utterance.rate = 1.0;
+        utterance.pitch = 1.0;
+        window.speechSynthesis.speak(utterance);
+    };
+    
+    // The list of voices is often loaded asynchronously.
+    // If the list is empty, we wait for the 'voiceschanged' event to fire.
+    if (window.speechSynthesis.getVoices().length === 0) {
+         // Set up a one-time event listener.
+        window.speechSynthesis.onvoiceschanged = () => {
+            performSpeak();
+             // Clean up the event listener so it doesn't fire again.
+            window.speechSynthesis.onvoiceschanged = null;
+        };
+    } else {
+        // If voices are already available, speak immediately.
+        performSpeak();
+    }
+}
+
+function showChatbotAnswer(questionId) {
+    const item = faqs.find(f => f.id === questionId);
+    if (!item) return;
+    
+    currentSpokenText = item.a;
+
+    chatbotQuestionEl.textContent = item.q;
+    chatbotAnswerEl.innerHTML = `<pre>${currentSpokenText}</pre>`;
+    chatbotContainer.classList.add('visible');
+    
+    // Auto-speak in Vietnamese by default
+    speak(currentSpokenText, 'vi-VN');
+}
+
+btnSpeakVi.addEventListener('click', () => speak(currentSpokenText, 'vi-VN'));
+btnSpeakEn.addEventListener('click', () => speak(currentSpokenText, 'en-US'));
+
+function hideChatbot() {
+    chatbotContainer.classList.remove('visible');
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+    }
+}
+
+closeChatbotBtn.addEventListener('click', hideChatbot);
+
+/* ================================================================= */
+/* ============= GEMINI API INTEGRATION ============================ */
+/* ================================================================= */
+async function callGeminiAPI(payload, loadingElement) {
+    loadingElement.innerHTML = 'Đang kết nối với Trợ lý AI...';
+    loadingElement.style.display = 'block';
+
+    const apiKey = ""; 
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+    
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error(`API call failed with status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        const candidate = result.candidates?.[0];
+
+        if (candidate && candidate.content?.parts?.[0]?.text) {
+            return candidate.content.parts[0].text;
+        } else {
+            console.error("Unexpected API response structure:", result);
+            return "Rất tiếc, tôi không thể tạo phản hồi vào lúc này. Vui lòng thử lại sau.";
+        }
+    } catch (error) {
+        console.error("Error calling Gemini API:", error);
+        return "Đã xảy ra lỗi khi kết nối với Trợ lý AI. Vui lòng kiểm tra console để biết thêm chi tiết.";
+    } finally {
+         loadingElement.style.display = 'none';
+    }
+}
+
+// Feature 1: Dynamic Q&A
+async function handleDynamicQA(query) {
+    const loadingEl = document.getElementById('gemini-loading-qa');
+    const resultEl = document.getElementById('gemini-result-qa');
+    resultEl.style.display = 'none';
+
+    const faqContext = faqs.map(f => `Câu hỏi: ${f.q}\nTrả lời: ${f.a}`).join('\n\n---\n\n');
+    const systemPrompt = "You are a helpful assistant specializing in the corporate culture of Vietnam Electricity (EVN). Your knowledge is based *only* on the provided context containing 50 official questions and answers about EVN's culture. Answer the user's question concisely based *only* on this information. If the user's question cannot be answered from the provided context or is unrelated to EVN culture, politely state that you can only answer questions about EVN's corporate culture based on the provided documents. Respond in Vietnamese.";
+    const userPrompt = `Dựa vào bối cảnh sau đây:\n\n[BỐI CẢNH]\n${faqContext}\n\n[HẾT BỐI CẢNH]\n\nHãy trả lời câu hỏi của người dùng: "${query}"`;
+    
+    const payload = {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+    };
+
+    const responseText = await callGeminiAPI(payload, loadingEl);
+
+    resultEl.innerHTML = `<pre>${responseText}</pre>`;
+    resultEl.style.display = 'block';
+}
+
+// Feature 2: Leader Tools
+function renderLeaderTools() {
+    setActiveMenu(btnLeaderTools);
+    hideChatbot();
+    content.innerHTML = `
+        <div class="card">
+            <h2 class="text-lg font-bold">✨ Công cụ Lãnh đạo</h2>
+            <p class="small mb-4">Chọn một công cụ để bắt đầu.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                <button class="menu-btn" onclick="renderCultureMap()">🗺️ Sơ đồ Văn hóa EVN</button>
+                <button class="menu-btn" onclick="renderCultureTimeline()">⏳ Hành trình Văn hóa EVN</button>
+                <button class="menu-btn" onclick="renderMessageComposer()">✍️ Soạn thảo Thông điệp</button>
+                <button class="menu-btn" onclick="renderEmailComposer()">📧 Soạn thảo Email</button>
+                <button class="menu-btn" onclick="renderSummarizer()">📋 Tóm tắt Nội dung</button>
+            </div>
+        </div>
+        <div id="leader-tool-content"></div>`;
+}
+
+function renderMessageComposer() {
+    document.getElementById('leader-tool-content').innerHTML = `
+        <div class="card mt-4">
+            <h2 class="text-lg font-bold">✍️ Soạn thảo Thông điệp Văn hóa</h2>
+            <p class="small mb-4">Nhập một chủ đề, Trợ lý AI sẽ giúp bạn soạn một thông điệp ngắn gọn để truyền thông tới đội ngũ, dựa trên các giá trị văn hóa của EVN.</p>
+            <textarea id="leader-topic-input" class="search w-full" rows="3" placeholder="Ví dụ: Tầm quan trọng của việc đảm bảo an toàn lao động trong mùa mưa bão..."></textarea>
+            <button class="btn primary mt-2" onclick="generateLeaderMessage()">Tạo thông điệp</button>
+            <div id="gemini-loading" class="small mt-4 p-3 rounded-lg bg-gray-100" style="display: none;"></div>
+            <div id="gemini-result" class="qa-item mt-4" style="display: none;"></div>
+        </div>`;
+}
+
+
+async function generateLeaderMessage() {
+    const topic = document.getElementById('leader-topic-input').value;
+    if (!topic.trim()) {
+        alert("Vui lòng nhập chủ đề.");
+        return;
+    }
+
+    const loadingEl = document.getElementById('gemini-loading');
+    const resultEl = document.getElementById('gemini-result');
+    resultEl.style.display = 'none';
+
+    const systemPrompt = "You are a communications expert for EVN, specializing in corporate culture. Your task is to draft a short, inspiring internal message (like an email or a speech for a team meeting) based on a topic provided by a manager. You must skillfully weave in EVN's official cultural values. Respond in Vietnamese. The tone should be professional, positive, and motivational. IMPORTANT: Start the message with exactly 'Thân gửi CBCNV ngành Điện,'. Do NOT use any other opening. End the message with exactly 'Được tạo bởi: Phạm Hồng Long & Brown Eyes'. Do NOT add any other signature or closing. EVN's 5 Core Values are: Niềm tin, Chất lượng, Tiên phong, Sáng tạo, Trách nhiệm. The 5 Ethical Standards are: An toàn, Đoàn kết, Nhân văn, Trung thực, Minh bạch.";
+
+    const payload = {
+        contents: [{ parts: [{ text: `Chủ đề: ${topic}` }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+    };
+
+    const responseText = await callGeminiAPI(payload, loadingEl);
+    
+    resultEl.innerHTML = `<pre>${responseText}</pre>`;
+    resultEl.style.display = 'block';
+}
+
+function renderCultureMap() {
+    document.getElementById('leader-tool-content').innerHTML = `
+    <div class="card mt-4">
+      <h2 class="text-lg font-bold">🗺️ Sơ đồ Văn hóa EVN</h2>
+      <div class="mindmap mt-4 overflow-x-auto p-4">
+        <ul>
+          <li><a>Văn hóa EVN</a>
+            <ul>
+              <li><a>Tầm nhìn, Sứ mệnh</a></li>
+              <li><a>Triết lý</a></li>
+              <li><a>Giá trị cốt lõi</a>
+                <ul>
+                  <li><a>Niềm tin</a></li>
+                  <li><a>Chất lượng</a></li>
+                  <li><a>Tiên phong</a></li>
+                  <li><a>Sáng tạo</a></li>
+                  <li><a>Trách nhiệm</a></li>
+                </ul>
+              </li>
+              <li><a>Chuẩn mực đạo đức</a>
+                 <ul>
+                  <li><a>An toàn</a></li>
+                  <li><a>Đoàn kết</a></li>
+                  <li><a>Nhân văn</a></li>
+                  <li><a>Trung thực</a></li>
+                  <li><a>Minh bạch</a></li>
+                </ul>
+              </li>
+              <li><a>Nguyên tắc cơ bản</a></li>
+              <li><a>Các cam kết</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </div>`;
+}
+
+function renderCultureTimeline() {
+     document.getElementById('leader-tool-content').innerHTML = `
+     <div class="card mt-4">
+        <h2 class="text-lg font-bold">⏳ Hành trình Văn hóa EVN</h2>
+        <div class="timeline mt-6">
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3 class="font-bold">2009</h3>
+                    <p class="small">Ban hành Sổ tay Văn hóa Doanh nghiệp EVN, đặt những nền móng đầu tiên cho việc xây dựng và chuẩn hóa văn hóa trong toàn Tập đoàn.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3 class="font-bold">Tháng 7, 2022</h3>
+                    <p class="small">Ban hành "Tài liệu Văn hóa Tập đoàn Điện lực Việt Nam" (kèm QĐ 1056/QĐ-EVN), cập nhật và hệ thống hóa các giá trị cốt lõi, triết lý cho phù hợp với giai đoạn mới.</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-content">
+                    <h3 class="font-bold">Tháng 1, 2023</h3>
+                    <p class="small">Ban hành "Bộ Quy tắc ứng xử văn hóa EVN" (kèm QĐ 25/QĐ-EVN), chi tiết hóa các chuẩn mực hành vi, ứng xử cho CBCNV trong mọi hoạt động.</p>
+                </div>
+            </div>
+        </div>
+     </div>`;
+}
+
+function renderEmailComposer() {
+    document.getElementById('leader-tool-content').innerHTML = `
+        <div class="card mt-4">
+            <h2 class="text-lg font-bold">📧 Soạn thảo Email</h2>
+            <p class="small mb-4">Nhập các thông tin cần thiết, AI sẽ giúp bạn soạn thảo một email chuyên nghiệp.</p>
+            <div class="space-y-4">
+                <input id="email-recipient" class="search w-full" placeholder="Đối tượng nhận (Vd: Toàn thể nhân viên, Trưởng các đơn vị)...">
+                <input id="email-subject" class="search w-full" placeholder="Chủ đề email...">
+                <textarea id="email-content" class="search w-full" rows="5" placeholder="Nội dung chính cần truyền đạt..."></textarea>
+            </div>
+            <button class="btn primary mt-2" onclick="generateEmail()">Soạn thảo với AI</button>
+            <div id="gemini-loading-email" class="small mt-4 p-3 rounded-lg bg-gray-100" style="display: none;"></div>
+            <div id="gemini-result-email" class="qa-item mt-4" style="display: none;"></div>
+        </div>`;
+}
+
+async function generateEmail() {
+    const recipient = document.getElementById('email-recipient').value;
+    const subject = document.getElementById('email-subject').value;
+    const content = document.getElementById('email-content').value;
+
+    if (!recipient.trim() || !subject.trim() || !content.trim()) {
+        alert("Vui lòng nhập đầy đủ các trường thông tin.");
+        return;
+    }
+
+    const loadingEl = document.getElementById('gemini-loading-email');
+    const resultEl = document.getElementById('gemini-result-email');
+    resultEl.style.display = 'none';
+
+    const systemPrompt = "You are an internal communications assistant at EVN. Your task is to draft a professional email in Vietnamese based on the provided topic, key points, and audience. The tone should be appropriate for the audience. Structure the email clearly with a subject line, greeting, body, and closing. Do not add a signature.";
+    const userPrompt = `Hãy soạn một email với các thông tin sau:\n- Đối tượng nhận: ${recipient}\n- Chủ đề: ${subject}\n- Nội dung chính: ${content}`;
+
+    const payload = {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+    };
+
+    const responseText = await callGeminiAPI(payload, loadingEl);
+    
+    resultEl.innerHTML = `<pre>${responseText}</pre>`;
+    resultEl.style.display = 'block';
+}
+
+function renderSummarizer() {
+    document.getElementById('leader-tool-content').innerHTML = `
+        <div class="card mt-4">
+            <h2 class="text-lg font-bold">📋 Tóm tắt Nội dung</h2>
+            <p class="small mb-4">Dán một đoạn văn bản vào ô dưới đây và AI sẽ giúp bạn tóm tắt lại các ý chính.</p>
+            <textarea id="summarize-text" class="search w-full" rows="8" placeholder="Dán văn bản cần tóm tắt vào đây..."></textarea>
+            <button class="btn primary mt-2" onclick="generateSummary()">Tóm tắt</button>
+            <div id="gemini-loading-summary" class="small mt-4 p-3 rounded-lg bg-gray-100" style="display: none;"></div>
+            <div id="gemini-result-summary" class="qa-item mt-4" style="display: none;"></div>
+        </div>`;
+}
+
+async function generateSummary() {
+    const textToSummarize = document.getElementById('summarize-text').value;
+    if (!textToSummarize.trim()) {
+        alert("Vui lòng nhập văn bản cần tóm tắt.");
+        return;
+    }
+
+    const loadingEl = document.getElementById('gemini-loading-summary');
+    const resultEl = document.getElementById('gemini-result-summary');
+    resultEl.style.display = 'none';
+    
+    const systemPrompt = "You are a helpful assistant. Your task is to summarize the following text provided by the user. The summary should be concise, clear, and in Vietnamese, capturing the main points of the original text.";
+    const userPrompt = `Hãy tóm tắt văn bản sau:\n\n---\n${textToSummarize}\n---`;
+
+    const payload = {
+        contents: [{ parts: [{ text: userPrompt }] }],
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+    };
+
+    const responseText = await callGeminiAPI(payload, loadingEl);
+    
+    resultEl.innerHTML = `<pre>${responseText}</pre>`;
+    resultEl.style.display = 'block';
+}
+
 
 /* ================================================================= */
 /* ============= NEW QUIZ FUNCTIONALITY (THI TRẮC NGHIỆM) ========== */
 /* ================================================================= */
-
 const quizData = [
     { question: "Theo Tài liệu Văn hóa EVN, khẩu hiệu chính thức của Tập đoàn Điện lực Việt Nam là gì?", options: ["EVN - Năng lượng cho phát triển bền vững", "EVN Thắp sáng niềm tin", "Điện đi trước một bước", "EVN - Nguồn sáng cho tương lai"], answer: 1, explanation: "Chính xác! Đây là khẩu hiệu chính thức, nhấn mạnh cam kết của EVN trong việc xây dựng và củng cố niềm tin với Đảng, Chính phủ, khách hàng và cộng đồng." },
     { question: "Trong 5 giá trị cốt lõi của EVN, giá trị nào nhấn mạnh việc \"mở đường, khơi nguồn sáng tạo\" và tạo ra những đột phá về năng lượng cho đất nước?", options: ["Trách nhiệm", "Sáng tạo", "Tiên phong", "Chất lượng"], answer: 2, explanation: "Giá trị này thể hiện tinh thần mở đường, dẫn dắt, chủ động phản ứng với thay đổi và làm chủ tương lai, phù hợp với truyền thống \"Điện đi trước một bước\"." },
@@ -397,7 +793,6 @@ let currentQuestionIndex = 0;
 let score = 0;
 let userAnswers = [];
 
-// Shuffle and create 5 quiz sets of 10 questions each
 function setupQuizSets() {
     const shuffledData = [...quizData].sort(() => 0.5 - Math.random());
     quizSets = [];
@@ -408,6 +803,7 @@ function setupQuizSets() {
 
 function renderNewQuizMenu() {
     setActiveMenu(btnNewQuiz);
+    hideChatbot();
     content.innerHTML = `<div class="card">
         <h2 class="text-lg font-bold">Thi trắc nghiệm Văn hóa Doanh nghiệp</h2>
         <p class="small mb-4">Vui lòng chọn một trong các bộ đề dưới đây để bắt đầu.</p>
@@ -463,7 +859,6 @@ function selectAnswer(button, selectedIndex) {
     const optionsContainer = document.getElementById('options-container');
     const allOptions = optionsContainer.getElementsByTagName('button');
 
-    // Disable all options
     for (let opt of allOptions) {
         opt.disabled = true;
     }
@@ -485,7 +880,7 @@ function selectAnswer(button, selectedIndex) {
     setTimeout(() => {
         currentQuestionIndex++;
         renderNewQuizQuestion();
-    }, 3000); // Wait 3 seconds before next question
+    }, 3000); 
 }
 
 function showNewQuizResult() {
@@ -535,10 +930,11 @@ function reviewQuiz() {
 }
 
 
-// Initialize quiz sets on load
+// Initialize quiz sets on load & first render
 setupQuizSets();
-
+renderQAMenu();
 
 </script>
 </body>
 </html>
+
