@@ -10,9 +10,9 @@
     body { font-family: Inter, sans-serif; background:#f3f6fa; margin:0; padding:20px; display:flex; justify-content:center; }
     .chatbot { width:100%; max-width:820px; background:#fff; border-radius:12px; box-shadow:0 8px 30px rgba(2,6,23,0.08); overflow:hidden; display:flex; flex-direction:column; min-height:640px; }
     .header { background:linear-gradient(90deg,var(--evn-blue), #004b8a); color:#fff; padding:18px; text-align:center; }
-    .body { display: flex; gap: 1rem; padding: 18px; flex: 1; }
-    .left { width: 320px; flex-shrink: 0; border-right:1px solid #eef2f6; padding-right:12px; }
-    .right { flex-grow: 1; padding-left:12px; overflow:auto; min-width: 0; }
+    .body { display:flex; gap:1rem; padding:18px; flex:1; }
+    .left { width:320px; border-right:1px solid #eef2f6; padding-right:12px; flex-shrink: 0; }
+    .right { flex:1; padding-left:12px; overflow:auto; min-width: 0; }
     .menu-btn { display:block; width:100%; text-align:left; margin-bottom:8px; padding:10px 12px; background:#f7f9fb; border-radius:8px; cursor:pointer; border:1px solid #e6eef6; font-weight:600; color:#0f1724; }
     .menu-btn.active { background:var(--evn-blue); color:#fff; border-color:rgba(255,255,255,0.06); }
     .card { background:#fff; border-radius:10px; padding:16px; box-shadow: 0 2px 8px rgba(12,20,40,0.04); margin-bottom:12px; }
@@ -58,16 +58,7 @@
     .timeline-item::after { content: ''; position: absolute; width: 15px; height: 15px; right: auto; background-color: white; border: 3px solid var(--evn-blue); top: 15px; left: 8px; border-radius: 50%; z-index: 1; }
     .timeline-content { padding: 15px; background-color: #f8fbff; border-radius: 6px; }
 
-    @media(max-width:900px){ 
-        .body { 
-            flex-direction: column;
-        } 
-        .left{ 
-            width:100%; 
-            border-right:none; 
-            padding-right:0 
-        } 
-    }
+    @media(max-width:900px){ .body { flex-direction:column; } .left{ width:100%; border-right:none; padding-right:0 } }
   </style>
 </head>
 <body>
@@ -409,47 +400,46 @@ function speak(text, lang) {
         return;
     }
 
+    // A function to actually speak the text, to be called when voices are ready.
     const performSpeak = () => {
-        window.speechSynthesis.cancel(); 
+        window.speechSynthesis.cancel(); // Stop any currently speaking utterance.
+
         const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = lang;
+        utterance.lang = lang; // Set the language as a primary way to select voice.
 
         const voices = window.speechSynthesis.getVoices();
         let selectedVoice = null;
 
         if (lang === 'vi-VN') {
-            selectedVoice = voices.find(voice => voice.lang === 'vi-VN' && voice.name.toLowerCase().includes('google')) || 
-                            voices.find(voice => voice.lang === 'vi-VN') || 
-                            voices.find(voice => voice.lang.startsWith('vi'));
+            // Find a Vietnamese voice, preferring the official 'vi-VN'.
+            selectedVoice = voices.find(voice => voice.lang === 'vi-VN') || voices.find(voice => voice.lang.startsWith('vi'));
         } else if (lang === 'en-US') {
-            selectedVoice = voices.find(voice => voice.lang === 'en-US' && voice.name.toLowerCase().includes('google')) ||
-                            voices.find(voice => voice.lang === 'en-US') ||
-                            voices.find(voice => voice.lang.startsWith('en'));
+             // Find a US English voice, preferring the official 'en-US'.
+            selectedVoice = voices.find(voice => voice.lang === 'en-US') || voices.find(voice => voice.lang.startsWith('en'));
         }
 
         if (selectedVoice) {
             utterance.voice = selectedVoice;
         } else {
-            console.warn(`Không tìm thấy giọng nói cho ngôn ngữ: ${lang}. Dùng giọng mặc định.`);
-            if (lang === 'vi-VN') {
-                 // Use a timeout to ensure the main UI update is not blocked
-                 setTimeout(() => {
-                    alert('Không tìm thấy giọng đọc tiếng Việt trên máy của bạn. Trình duyệt có thể sẽ dùng tiếng Anh. Vui lòng xem hướng dẫn trong phần trả lời để cài đặt.');
-                 }, 100);
-            }
+            console.warn(`Không tìm thấy giọng nói cụ thể cho ngôn ngữ: ${lang}. Trình duyệt sẽ sử dụng giọng mặc định.`);
         }
-        
+
         utterance.rate = 1.0;
         utterance.pitch = 1.0;
         window.speechSynthesis.speak(utterance);
     };
     
+    // The list of voices is often loaded asynchronously.
+    // If the list is empty, we wait for the 'voiceschanged' event to fire.
     if (window.speechSynthesis.getVoices().length === 0) {
+         // Set up a one-time event listener.
         window.speechSynthesis.onvoiceschanged = () => {
             performSpeak();
+             // Clean up the event listener so it doesn't fire again.
             window.speechSynthesis.onvoiceschanged = null;
         };
     } else {
+        // If voices are already available, speak immediately.
         performSpeak();
     }
 }
@@ -464,6 +454,7 @@ function showChatbotAnswer(questionId) {
     chatbotAnswerEl.innerHTML = `<pre>${currentSpokenText}</pre>`;
     chatbotContainer.classList.add('visible');
     
+    // Auto-speak in Vietnamese by default
     speak(currentSpokenText, 'vi-VN');
 }
 
@@ -486,8 +477,9 @@ async function callGeminiAPI(payload, loadingElement) {
     loadingElement.innerHTML = 'Đang kết nối với Trợ lý AI...';
     loadingElement.style.display = 'block';
 
-    const apiKey = "AIzaSyAiw7XeJcOIriBW6mtVpAyNtdgtcE8KLLs";
-    
+    // !!! QUAN TRỌNG: Dán API Key của bạn vào đây
+    // Lấy key từ: https://aistudio.google.com/app/apikey
+    const apiKey = "AIzaSyAiw7XeJcOIriBW6mtVpAyNtdgtcE8KLLs"; 
     const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
     
     try {
@@ -498,9 +490,7 @@ async function callGeminiAPI(payload, loadingElement) {
         });
 
         if (!response.ok) {
-            const errorData = await response.json();
-            console.error("API Error Data:", errorData);
-            throw new Error(`API call failed with status: ${response.status}. ${errorData.error?.message || ''}`);
+            throw new Error(`API call failed with status: ${response.status}`);
         }
 
         const result = await response.json();
@@ -844,7 +834,7 @@ function renderNewQuizQuestion() {
         return;
     }
 
-    const questionData = quizSet[currentSetIndex];
+    const questionData = quizSet[currentQuestionIndex];
     let optionsHtml = '';
     questionData.options.forEach((option, index) => {
         optionsHtml += `<button class="quiz-option" onclick="selectAnswer(this, ${index})">${String.fromCharCode(65 + index)}. ${option}</button>`;
@@ -949,4 +939,5 @@ renderQAMenu();
 </script>
 </body>
 </html>
+
 
